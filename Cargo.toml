@@ -47,7 +47,7 @@ html2text = "0.16"
 feed-rs = "2"
 
 # HTTP client (sync, minimal — fetches run on a background thread)
-ureq = "2"
+ureq = "3"
 
 # Serialization: config (TOML) and cache (JSON)
 serde = { version = "1", features = ["derive"] }
