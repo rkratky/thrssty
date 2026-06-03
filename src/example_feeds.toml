@@ -1,0 +1,30 @@
+# thrssty feeds file
+#
+# Copy this file to ~/.config/thrssty/feeds.toml and edit it to add your feeds.
+# Feeds can be grouped into named categories, or listed without a category.
+
+# ── Categorised feeds ─────────────────────────────────────────────────────────
+
+[category.1]
+title = "Rust"
+
+[[category.1.feed]]
+url  = "https://blog.rust-lang.org/feed.xml"
+name = "Rust Blog"
+
+[[category.1.feed]]
+url  = "https://this-week-in-rust.org/rss.xml"
+name = "This Week in Rust"
+
+[category.2]
+title = "Linux"
+
+[[category.2.feed]]
+url  = "https://www.kernel.org/feeds/kdiff.xml"
+name = "Kernel.org"
+
+# ── Uncategorised feeds ───────────────────────────────────────────────────────
+
+# [[feed]]
+# url  = "https://example.com/feed.xml"
+# name = "Example Feed"

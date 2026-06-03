@@ -1,0 +1,70 @@
+[package]
+name = "thrssty"
+version = "0.1.0"
+edition = "2021"
+description = "TUI RSS news reader in Rust"
+repository = "https://github.com/rkratky/thrssty"
+license = "MIT OR Apache-2.0"
+keywords = ["rss", "atom", "tui", "newsreader", "terminal"]
+categories = ["command-line-utilities"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package.metadata.deb]
+maintainer = "thrssty contributors"
+copyright = "2026, thrssty contributors"
+license-file = ["LICENSE-MIT", "4"]
+extended-description = """\
+thrssty is a terminal-based RSS/Atom newsreader with a three-panel layout \
+inspired by the Mutt email client: a feed sidebar, an article list, and an \
+article view. Helix-editor themes are supported natively. All key bindings, \
+colours, and panel proportions are configurable via TOML.\
+"""
+section = "net"
+priority = "optional"
+assets = [
+    # binary
+    ["target/release/thrssty", "usr/bin/thrssty", "755"],
+    # manpage (gzip'd by cargo-deb automatically)
+    ["man/thrssty.1", "usr/share/man/man1/thrssty.1", "644"],
+    # example config (docs, not enforced as a conf-file)
+    ["config.toml", "usr/share/doc/thrssty/config.toml.example", "644"],
+    ["feeds.toml", "usr/share/doc/thrssty/feeds.toml.example", "644"],
+    ["README.md", "usr/share/doc/thrssty/README.md", "644"],
+    ["CHANGELOG.md", "usr/share/doc/thrssty/changelog", "644"],
+]
+
+[dependencies]
+# TUI rendering
+ratatui = { version = "0.30", features = ["unstable-rendered-line-info"] }
+tui-input = "0.15"
+crossterm = "0.29"
+
+# HTML rendering for article body
+html2text = "0.16"
+
+# RSS/Atom feed parsing
+feed-rs = "2"
+
+# HTTP client (sync, minimal — fetches run on a background thread)
+ureq = "2"
+
+# Serialization: config (TOML) and cache (JSON)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# Error handling
+thiserror = "2"
+
+# Dates with serde support
+chrono = { version = "0.4", features = ["serde"] }
+
+# Platform config/data directory resolution
+dirs = "5"
+
+# Open article URLs in the system browser
+open = "5"
+
+[dev-dependencies]
+tempfile = "3"

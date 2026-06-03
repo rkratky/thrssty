@@ -1,0 +1,63 @@
+# thrssty built-in light theme
+# Used automatically on light-background terminals when theme = "auto".
+# Compatible with the Helix editor theme format (subset).
+#
+# NOTE: scope definitions must appear BEFORE [palette] in TOML.
+
+# ── UI chrome ─────────────────────────────────────────────────────────────────
+
+"ui.background"       = { bg = "bg" }
+"ui.text"             = { fg = "fg" }
+"ui.border"           = { fg = "border" }
+"ui.statusline"       = { fg = "status_fg", bg = "bg" }
+"ui.statusline.error" = { fg = "error",     bg = "bg" }
+"ui.statusline.key"   = { fg = "accent",    bg = "bg", modifiers = ["bold"] }
+"ui.selection"        = { bg = "selection" }
+
+# ── Feed sidebar ───────────────────────────────────────────────────────────────
+
+"category.unread" = { fg = "accent",   modifiers = ["bold"] }
+"category.read"   = { fg = "dim" }
+
+"feed.unread"   = { fg = "blue",   modifiers = ["bold"] }
+"feed.read"     = { fg = "dim" }
+"feed.selected" = { fg = "fg",     bg = "selection" }
+"feed.error"    = { fg = "error" }
+
+# ── Article list ───────────────────────────────────────────────────────────────
+
+"article.unread"      = { fg = "fg",      modifiers = ["bold"] }
+"article.read"        = { fg = "dim" }
+"article.selected"    = { fg = "fg",      bg = "selection" }
+"article.date"        = { fg = "green" }
+"article.author"      = { fg = "purple" }
+"article.category"    = { fg = "orange" }
+"article.description" = { fg = "dim" }
+
+# ── Article body inline styles ─────────────────────────────────────────────────
+
+"article.bold"   = { modifiers = ["bold"] }
+"article.italic" = { modifiers = ["italic"] }
+"article.link"   = { fg = "blue",   modifiers = ["underlined"] }
+"article.h1"     = { fg = "accent", modifiers = ["bold"] }
+"article.h2"     = { fg = "blue",   modifiers = ["bold"] }
+"article.h3"     = { fg = "purple", modifiers = ["bold"] }
+"article.code"   = { fg = "code" }
+"article.quote"  = { fg = "dim",    modifiers = ["italic"] }
+
+# ── Color palette ─────────────────────────────────────────────────────────────
+
+[palette]
+bg        = "#ffffff"
+fg        = "#1a1a1a"
+dim       = "#888888"
+border    = "#cccccc"
+selection = "#d0e4f7"
+status_fg = "#333333"
+accent    = "#0057ae"
+blue      = "#0070c0"
+green     = "#2e7d32"
+purple    = "#7b2d8b"
+orange    = "#c04e00"
+code      = "#006f6f"
+error     = "#c62828"

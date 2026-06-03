@@ -1,0 +1,59 @@
+# thrssty "purple" theme (Catppuccin Mocha-inspired)
+# Copy to ~/.config/thrssty/themes/purple.toml and set theme = "purple"
+
+# ── UI chrome ─────────────────────────────────────────────────────────────────
+
+"ui.background"  = { bg = "bg" }
+"ui.text"        = { fg = "fg" }
+"ui.border"      = { fg = "overlay" }
+"ui.statusline"  = { fg = "fg", bg = "surface" }
+"ui.statusline.error" = { fg = "red", bg = "surface" }
+"ui.statusline.key"   = { fg = "cyan", bg = "surface", modifiers = ["bold"] }
+"ui.selection"   = { bg = "surface" }
+
+# ── Feed sidebar ───────────────────────────────────────────────────────────────
+
+"category.unread"  = { fg = "cyan", modifiers = ["bold"] }
+"category.read"    = { fg = "subtext" }
+
+"feed.unread"    = { fg = "blue", modifiers = ["bold"] }
+"feed.read"      = { fg = "dim" }
+"feed.selected"  = { fg = "fg", bg = "surface" }
+"feed.error"     = { fg = "red" }
+
+# ── Article list ───────────────────────────────────────────────────────────────
+
+"article.unread"   = { fg = "fg", modifiers = ["bold"] }
+"article.read"     = { fg = "dim" }
+"article.selected" = { fg = "fg", bg = "surface" }
+"article.date"     = { fg = "green" }
+"article.author"   = { fg = "magenta" }
+"article.category" = { fg = "yellow" }
+"article.description" = { fg = "subtext" }
+
+# ── Article body inline styles ─────────────────────────────────────────────────
+
+"article.bold"   = { modifiers = ["bold"] }
+"article.italic" = { modifiers = ["italic"] }
+"article.link"   = { fg = "blue", modifiers = ["underlined"] }
+"article.h1"     = { fg = "magenta", modifiers = ["bold"] }
+"article.h2"     = { fg = "cyan", modifiers = ["bold"] }
+"article.h3"     = { fg = "blue", modifiers = ["bold"] }
+"article.code"   = { fg = "yellow" }
+"article.quote"  = { fg = "dim", modifiers = ["italic"] }
+
+# ── Color palette ─────────────────────────────────────────────────────────────
+
+[palette]
+bg      = "#1e1e2e"
+fg      = "#cdd6f4"
+surface = "#313244"
+overlay = "#45475a"
+subtext = "#a6adc8"
+blue    = "#89b4fa"
+cyan    = "#89dceb"
+green   = "#a6e3a1"
+yellow  = "#f9e2af"
+magenta = "#cba6f7"
+red     = "#f38ba8"
+dim     = "#6c7086"

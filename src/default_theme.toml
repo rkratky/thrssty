@@ -1,0 +1,61 @@
+# thrssty built-in dark theme (palette derived from "Ao" by YardQuit)
+# Used automatically on dark-background terminals when theme = "auto".
+# Compatible with the Helix editor theme format (subset).
+#
+# NOTE: scope definitions must appear BEFORE [palette] in TOML.
+
+# ── UI chrome ─────────────────────────────────────────────────────────────────
+
+"ui.background"       = { bg = "deep_abyss" }
+"ui.text"             = { fg = "winter_sky" }
+"ui.border"           = { fg = "slate_gray" }
+"ui.statusline"       = { fg = "winter_sky", bg = "deep_abyss" }
+"ui.statusline.error" = { fg = "ruby_glow",  bg = "deep_abyss" }
+"ui.statusline.key"   = { fg = "sky_blue",   bg = "deep_abyss", modifiers = ["bold"] }
+"ui.selection"        = { bg = "deep_purple" }
+
+# ── Feed sidebar ───────────────────────────────────────────────────────────────
+
+"category.unread" = { fg = "crystal_blue", modifiers = ["bold"] }
+"category.read"   = { fg = "slate_gray" }
+
+"feed.unread"   = { fg = "dreamy_blue", modifiers = ["bold"] }
+"feed.read"     = { fg = "slate_gray" }
+"feed.selected" = { fg = "winter_sky",  bg = "deep_purple" }
+"feed.error"    = { fg = "ruby_glow" }
+
+# ── Article list ───────────────────────────────────────────────────────────────
+
+"article.unread"      = { fg = "winter_sky",   modifiers = ["bold"] }
+"article.read"        = { fg = "slate_gray" }
+"article.selected"    = { fg = "winter_sky",   bg = "deep_purple" }
+"article.date"        = { fg = "leafy_green" }
+"article.author"      = { fg = "slate_purple" }
+"article.category"    = { fg = "blaze_orange" }
+"article.description" = { fg = "slate_gray" }
+
+# ── Article body inline styles ─────────────────────────────────────────────────
+
+"article.bold"   = { modifiers = ["bold"] }
+"article.italic" = { modifiers = ["italic"] }
+"article.link"   = { fg = "sky_blue",     modifiers = ["underlined"] }
+"article.h1"     = { fg = "crystal_blue", modifiers = ["bold"] }
+"article.h2"     = { fg = "sky_blue",     modifiers = ["bold"] }
+"article.h3"     = { fg = "dreamy_blue",  modifiers = ["bold"] }
+"article.code"   = { fg = "leafy_green" }
+"article.quote"  = { fg = "slate_gray",   modifiers = ["italic"] }
+
+# ── Color palette ─────────────────────────────────────────────────────────────
+
+[palette]
+deep_abyss   = "#080d15"
+deep_purple  = "#4c1785"
+winter_sky   = "#f3f4f6"
+slate_gray   = "#838a97"
+blaze_orange = "#ff9000"
+leafy_green  = "#81be83"
+dreamy_blue  = "#6eb0ff"
+crystal_blue = "#99c7ff"
+sky_blue     = "#45b1e8"
+ruby_glow    = "#fa7970"
+slate_purple = "#d2a8ff"

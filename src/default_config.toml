@@ -1,0 +1,105 @@
+# thrssty configuration file
+#
+# Copy this file to ~/.config/thrssty/config.toml
+# All settings are optional — omitting any key restores its default value.
+
+# ── Appearance ─────────────────────────────────────────────────────────────────
+
+# Theme to use. Accepted values:
+#   "auto"          — detect terminal background and use the matching built-in
+#                     ("default_dark" on dark terminals, "default_light" on light)
+#   "default_dark"  — built-in dark theme (Ao-inspired)
+#   "default_light" — built-in light theme
+#   "purple"        — Catppuccin Mocha-inspired (copy themes/purple.toml from
+#                     the repo to ~/.config/thrssty/themes/ first)
+#   "name"          — ~/.config/thrssty/themes/name.toml
+#   "/usr/lib/helix/runtime/themes/name.toml" — direct file path
+#
+# Helix editor themes are supported natively, including `inherits` chains.
+# Standard Helix scopes (markup.*, ui.*) are automatically mapped to thrssty
+# scopes, so stock Helix themes render well without any extra configuration.
+theme = "auto"
+
+# ── Startup behaviour ──────────────────────────────────────────────────────────
+
+# Fetch all feeds automatically when thrssty starts.
+# Set to false to only fetch manually with r / R.
+refresh_on_start = true
+
+# ── Feeds file ─────────────────────────────────────────────────────────────────
+
+# Path to the feeds definition file (RSS/Atom URLs and categories).
+# Relative paths are resolved relative to this config file's directory.
+# Default: feeds.toml in the same directory as config.toml.
+feeds_file = "feeds.toml"
+
+# Display label for feeds not assigned to any category.
+uncategorized_label = "No category"
+
+# Remove articles older than this many days from the cache on startup.
+# Set to 0 to never remove old articles.
+max_article_age_days = 100
+
+# ── Layout ────────────────────────────────────────────────────────────────────
+
+[layout]
+
+# Width of the feed sidebar as a percentage of total terminal width.
+sidebar_width = 20
+
+# Height of the article list as a percentage of the right-panel height.
+# The article view takes the remaining percentage.
+article_list_height = 40
+
+# Maximum width of the author column in the article list, as a percentage of
+# the list panel's inner width.  Author names exceeding this cap are truncated.
+max_author_col_pct = 25
+
+# ── Key bindings ──────────────────────────────────────────────────────────────
+#
+# Single characters are written as-is: "q", "j", "R"
+# Named keys: "Up", "Down", "Home", "End", "PageUp", "PageDown", "Enter", "Esc"
+
+[keys]
+
+# Quit the application.
+quit = "q"
+
+# Refresh the currently selected feed.
+refresh_feed = "r"
+
+# Refresh all feeds.
+refresh_all = "R"
+
+# Reload config.toml and feeds.toml without restarting.
+reload_config = "F5"
+
+# Add a new feed interactively.
+add_feed = "a"
+
+# Delete the currently selected feed.
+delete_feed = "d"
+
+# Edit the display name of the currently selected feed.
+edit_feed = "e"
+
+# Open the article URL in the system browser ($BROWSER / xdg-open).
+open_browser = "o"
+
+# Move the feed cursor down / up in the sidebar.
+feed_down = "j"
+feed_up   = "k"
+
+# Move the article cursor in the list.
+article_down = "Right"
+article_up   = "Left"
+article_home = "Home"
+article_end  = "End"
+
+# Scroll the article view by a page.
+scroll_down = "PageDown"
+scroll_up   = "PageUp"
+
+# Scroll the article view by a single line.
+scroll_line_down = "Down"
+scroll_line_up   = "Up"

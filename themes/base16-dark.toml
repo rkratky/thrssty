@@ -1,0 +1,68 @@
+# thrssty — base16 dark theme
+#
+# Background: black (#000000)
+# Text: grey (#b2b2b2)
+# Accent colors: base16 default-dark palette
+#
+# Install: copy to ~/.config/thrssty/themes/base16-dark.toml
+# Enable:  set `theme = "base16-dark"` in ~/.config/thrssty/config.toml
+
+# ── UI chrome ─────────────────────────────────────────────────────────────────
+
+"ui.background"  = { bg = "bg" }
+"ui.text"        = { fg = "fg" }
+"ui.border"      = { fg = "overlay" }
+"ui.statusline"  = { fg = "fg", bg = "surface" }
+"ui.statusline.error" = { fg = "red", bg = "surface" }
+"ui.statusline.key"   = { fg = "cyan", bg = "surface", modifiers = ["bold"] }
+"ui.selection"   = { bg = "surface" }
+
+# ── Feed sidebar ───────────────────────────────────────────────────────────────
+
+"category.unread"  = { fg = "cyan", modifiers = ["bold"] }
+"category.read"    = { fg = "subtext" }
+
+"feed.unread"    = { fg = "blue", modifiers = ["bold"] }
+"feed.read"      = { fg = "dim" }
+"feed.selected"  = { fg = "fg", bg = "surface" }
+"feed.error"     = { fg = "red" }
+
+# ── Article list ───────────────────────────────────────────────────────────────
+
+"article.unread"   = { fg = "fg", modifiers = ["bold"] }
+"article.read"     = { fg = "dim" }
+"article.selected" = { fg = "fg", bg = "surface" }
+"article.date"     = { fg = "green" }
+"article.author"   = { fg = "magenta" }
+"article.category" = { fg = "yellow" }
+"article.description" = { fg = "subtext" }
+
+# ── Article body inline styles ─────────────────────────────────────────────────
+
+"article.bold"   = { modifiers = ["bold"] }
+"article.italic" = { modifiers = ["italic"] }
+"article.link"   = { fg = "blue", modifiers = ["underlined"] }
+"article.h1"     = { fg = "magenta", modifiers = ["bold"] }
+"article.h2"     = { fg = "cyan", modifiers = ["bold"] }
+"article.h3"     = { fg = "blue", modifiers = ["bold"] }
+"article.code"   = { fg = "yellow" }
+"article.quote"  = { fg = "dim", modifiers = ["italic"] }
+
+# ── Color palette (base16 default-dark) ───────────────────────────────────────
+
+[palette]
+bg      = "#000000"   # base00 — pure black background
+fg      = "#b2b2b2"   # base05 — grey main text (user-specified)
+surface = "#202020"   # base01 — slightly raised surface (statusline, selection)
+overlay = "#505050"   # base03 — borders, muted chrome
+subtext = "#808080"   # between base03/04 — secondary text
+dim     = "#505050"   # base03 — de-emphasised / read items
+
+red     = "#ac4142"   # base08
+orange  = "#d28445"   # base09
+yellow  = "#f4bf75"   # base0A
+green   = "#90a959"   # base0B
+cyan    = "#75b5aa"   # base0C
+blue    = "#6a9fb5"   # base0D
+magenta = "#aa759f"   # base0E
+brown   = "#8f5536"   # base0F

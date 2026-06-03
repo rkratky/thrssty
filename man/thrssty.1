@@ -1,0 +1,313 @@
+.TH THRSSTY 1 "March 2026" "thrssty 0.1.0" "User Commands"
+.
+.SH NAME
+thrssty \- TUI RSS/Atom newsreader for the terminal
+.
+.SH SYNOPSIS
+.B thrssty
+.RI [ OPTIONS ]
+.
+.SH DESCRIPTION
+.B thrssty
+is a terminal-based RSS/Atom newsreader with a three-panel layout inspired by the
+Mutt email client.
+The viewport is divided into a
+.B feed sidebar
+(left),
+an
+.B article list
+(top right), and an
+.B article view
+(bottom right).
+.PP
+Navigating the feed sidebar updates the article list automatically.
+Moving the cursor in the article list renders the selected article immediately.
+Switching to a new feed auto-selects its first unread article.
+.PP
+All key bindings, colours, and panel proportions are configurable via
+.IR config.toml .
+Helix-editor theme files are supported natively.
+.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Print a short help message and exit.
+.TP
+.BR \-v ", " \-\-version
+Print the version string and exit.
+.TP
+.BR \-r ", " \-\-refresh
+Refresh all configured feeds immediately on startup, overriding the
+.I refresh_on_start
+setting in the config file.
+.TP
+.BI \-c " path" "\fR,\fP \-\-config " path
+Load the specified file instead of the default config.
+Config values cascade: built-in defaults < current-directory
+.I config.toml
+< user config
+.RI ( ~/.config/thrssty/config.toml )
+< this file.
+.TP
+.BI \-t " path\fR|\fPname" "\fR,\fP \-\-theme " path\fR|\fPname
+Override the theme.
+Accepts a bare theme name (looked up in
+.IR ~/.config/thrssty/themes/ )
+or an absolute/relative path to a
+.I .toml
+file.
+Helix themes (e.g.\&
+.IR /usr/lib/helix/runtime/themes/ayu_evolve.toml )
+are resolved directly, including
+.I inherits
+chains.
+.TP
+.BR \-i ", " \-\-init
+Write default
+.IR config.toml ,
+.IR themes/default.toml " (built-in theme),"
+and an example
+.I feeds.toml
+to
+.IR ~/.config/thrssty/ ,
+then exit.
+Existing files are not overwritten.
+.
+.SH KEY BINDINGS
+All bindings shown are the compiled-in defaults; every key is configurable
+in the
+.B [keys]
+section of
+.IR config.toml .
+.SS Feed sidebar
+.TP
+.B j
+Move cursor down in the feed list.
+.TP
+.B k
+Move cursor up in the feed list.
+.SS Article list
+.TP
+.B \(->  (Right arrow)
+Move cursor down in the article list.
+.TP
+.B \(<-  (Left arrow)
+Move cursor up in the article list.
+.TP
+.BR Home ", " End
+Jump to the first / last article.
+.SS Article view
+.TP
+.B \(da  (Down arrow)
+Scroll article view down one line.
+.TP
+.B \(ua  (Up arrow)
+Scroll article view up one line.
+.TP
+.BR PageDown ", " PageUp
+Scroll article view down / up one page.
+.SS Global
+.TP
+.B r
+Refresh the currently selected feed.
+.TP
+.B R
+Refresh all feeds.
+.TP
+.B a
+Add a new feed.
+.B thrssty
+prompts for a URL in the status bar, validates it in the background, then
+optionally prompts for a category name.
+The feed is written to
+.I feeds.toml
+immediately; the file is created if it does not yet exist.
+.TP
+.B d
+Delete the currently selected feed.
+A confirmation prompt is shown before the feed is removed from
+.IR feeds.toml .
+.TP
+.B e
+Edit the display name of the selected feed. The current name is pre-filled
+in the input line; press Enter to confirm or Esc to cancel.
+An empty input resets the name to the feed's own title on the next refresh.
+.PP
+.B Input line editing
+.PP
+All text prompts
+.RB ( a ,
+.BR e ,
+category name)
+support standard readline\-style editing: arrow keys move the cursor,
+.B Ctrl+A
+/
+.B Ctrl+E
+jump to start/end,
+.B Ctrl+W
+deletes the previous word,
+.B Ctrl+U
+clears the line, and
+.B Ctrl+K
+kills to end of line.
+.TP
+.B o
+Open the selected article URL in the system browser
+.RB ( $BROWSER
+or
+.BR xdg-open ).
+.TP
+.B F5
+Reload the configuration and feeds files without restarting.
+Useful after editing
+.I config.toml
+or
+.I feeds.toml
+by hand.
+.TP
+.B q
+Quit
+.BR thrssty .
+.
+.SH FILES
+.TP
+.I ~/.config/thrssty/config.toml
+Primary user configuration file.
+.TP
+.I ~/.config/thrssty/feeds.toml
+Feed list.
+Optional — the app starts with an empty sidebar if the file is absent.
+Use
+.B a
+in the UI to add feeds interactively; they are written to this file automatically.
+.TP
+.I ~/.config/thrssty/themes/
+Directory for user-supplied theme files.
+.TP
+.I ~/.local/share/thrssty/cache.json
+Article and read-state cache, written on clean exit and after each
+successful feed refresh.
+.
+.SH CONFIGURATION
+.B thrssty
+is configured with a TOML file.
+Use
+.B thrssty \-\-init
+to generate a commented example at
+.IR ~/.config/thrssty/config.toml .
+.PP
+Key bindings in the
+.B [keys]
+section accept key names such as
+.IR q ,
+.IR j ,
+.IR Up ,
+.IR Down ,
+.IR Left ,
+.IR Right ,
+.IR Home ,
+.IR End ,
+.IR PageUp ,
+.IR PageDown ,
+and modifier combinations such as
+.IR ctrl-r .
+.
+.SH THEMING
+Themes are TOML files that define a
+.B [palette]
+and a set of UI scope entries.
+.B thrssty
+understands a subset of the
+.UR https://docs.helix-editor.com/master/themes.html
+Helix editor theme format
+.UE ,
+including the
+.I inherits
+key for theme inheritance chains.
+.PP
+The
+.B theme
+config key accepts:
+.TP
+.B auto
+Detect the terminal background color and select the matching built-in theme
+.RB ( default_dark
+on dark terminals,
+.B default_light
+on light terminals).
+This is the default.
+.TP
+.B default_dark
+Always use the built-in dark theme (Ao-inspired dark palette).
+.TP
+.B default_light
+Always use the built-in light theme.
+.TP
+.BI name
+Look up
+.I ~/.config/thrssty/themes/<name>.toml
+.RB ( purple
+ships as an example in the repository).
+.TP
+.I /path/to/theme.toml
+Use the theme at the given path directly.
+.PP
+Helix system themes can be used directly:
+.PP
+.RS
+.EX
+theme = "/usr/lib/helix/runtime/themes/ayu_evolve.toml"
+.EE
+.RE
+.PP
+Unmapped Helix scopes are resolved automatically to their closest
+.B thrssty
+equivalent.
+.
+.SH ENVIRONMENT
+.TP
+.B BROWSER
+Preferred browser, consulted before falling back to
+.BR xdg-open .
+.
+.SH EXAMPLES
+Generate default config files and launch:
+.PP
+.RS
+.EX
+thrssty --init
+$EDITOR ~/.config/thrssty/feeds.toml
+thrssty
+.EE
+.RE
+.PP
+Launch with an alternative config and refresh all feeds immediately:
+.PP
+.RS
+.EX
+thrssty --config ~/work/thrssty.toml --refresh
+.EE
+.RE
+.PP
+Try a Helix theme without changing the config:
+.PP
+.RS
+.EX
+thrssty --theme /usr/lib/helix/runtime/themes/catppuccin_mocha.toml
+.EE
+.RE
+.
+.SH SEE ALSO
+.BR xdg-open (1),
+.BR less (1),
+.BR mutt (1)
+.
+.SH AUTHORS
+thrssty contributors.
+See the project repository:
+.UR https://github.com/rkratky/thrssty
+.UE
+.
+.SH LICENSE
+.B thrssty
+is dual-licensed under the MIT and Apache 2.0 licences.
