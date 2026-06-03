@@ -41,7 +41,7 @@ tui-input = "0.15"
 crossterm = "0.29"
 
 # HTML rendering for article body
-html2text = "0.16"
+html2text = "0.17"
 
 # RSS/Atom feed parsing
 feed-rs = "2"
