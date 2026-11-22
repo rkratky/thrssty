@@ -13,6 +13,12 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Publish the audit result as a check run (required by branch protection).
+      checks: write
+      # Open an issue when a scheduled audit finds a new advisory.
+      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
