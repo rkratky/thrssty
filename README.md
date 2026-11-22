@@ -274,6 +274,7 @@ The `theme` config key accepts:
 | `"default_dark"` | Built-in dark theme (Ao-inspired) |
 | `"default_light"` | Built-in light theme |
 | `"purple"` | Catppuccin Mocha-inspired (copy `themes/purple.toml` to `~/.config/thrssty/themes/`) |
+| `"matrix"` | Matrix-inspired green-on-black (copy `themes/matrix.toml` to `~/.config/thrssty/themes/`) |
 | `"name"` | `~/.config/thrssty/themes/name.toml` |
 | `"/path/to/theme.toml"` | Direct file path |
 
@@ -282,6 +283,7 @@ theme = "auto"                                           # auto-detect (default)
 theme = "default_dark"                                   # always dark
 theme = "default_light"                                  # always light
 theme = "purple"                                         # user-installed example theme
+theme = "matrix"                                         # Matrix-inspired example theme
 theme = "/usr/lib/helix/runtime/themes/ayu_evolve.toml" # any Helix theme by path
 ```
 

@@ -1,0 +1,66 @@
+# thrssty "matrix" theme
+# Matrix-inspired green-on-black, based on the OpenCode Matrix theme palette:
+# https://github.com/anomalyco/opencode/blob/dev/packages/tui/src/theme/assets/matrix.json
+#
+# Install: copy to ~/.config/thrssty/themes/matrix.toml
+# Enable:  set `theme = "matrix"` in ~/.config/thrssty/config.toml
+
+# ── UI chrome ─────────────────────────────────────────────────────────────────
+
+"ui.background"  = { bg = "matrix_ink_0" }
+"ui.text"        = { fg = "rain_green_hi" }
+"ui.border"      = { fg = "matrix_ink_3" }
+"ui.statusline"  = { fg = "rain_green_hi", bg = "matrix_ink_1" }
+"ui.statusline.error" = { fg = "alert_red", bg = "matrix_ink_1" }
+"ui.statusline.key"   = { fg = "rain_cyan", bg = "matrix_ink_1", modifiers = ["bold"] }
+"ui.selection"   = { fg = "matrix_ink_0", bg = "rain_green" }
+
+# ── Feed sidebar ───────────────────────────────────────────────────────────────
+
+"category.unread"  = { fg = "rain_cyan", modifiers = ["bold"] }
+"category.read"    = { fg = "rain_gray" }
+
+"feed.unread"    = { fg = "rain_green", modifiers = ["bold"] }
+"feed.read"      = { fg = "rain_gray" }
+"feed.selected"  = { fg = "matrix_ink_0", bg = "rain_green" }
+"feed.error"     = { fg = "alert_red" }
+
+# ── Article list ───────────────────────────────────────────────────────────────
+
+"article.unread"   = { fg = "rain_green_hi", modifiers = ["bold"] }
+"article.read"     = { fg = "rain_gray" }
+"article.selected" = { fg = "matrix_ink_0", bg = "rain_green" }
+"article.date"     = { fg = "rain_teal" }
+"article.author"   = { fg = "rain_purple" }
+"article.category" = { fg = "rain_orange" }
+"article.description" = { fg = "rain_gray" }
+
+# ── Article body inline styles ─────────────────────────────────────────────────
+
+"article.bold"   = { fg = "alert_yellow", modifiers = ["bold"] }
+"article.italic" = { fg = "rain_orange", modifiers = ["italic"] }
+"article.link"   = { fg = "alert_blue", modifiers = ["underlined"] }
+"article.h1"     = { fg = "rain_cyan", modifiers = ["bold"] }
+"article.h2"     = { fg = "rain_teal", modifiers = ["bold"] }
+"article.h3"     = { fg = "alert_blue", modifiers = ["bold"] }
+"article.code"   = { fg = "rain_green_dim" }
+"article.quote"  = { fg = "rain_gray", modifiers = ["italic"] }
+
+# ── Color palette (OpenCode Matrix theme) ─────────────────────────────────────
+
+[palette]
+matrix_ink_0   = "#0a0e0a"
+matrix_ink_1   = "#0e130d"
+matrix_ink_2   = "#141c12"
+matrix_ink_3   = "#1e2a1b"
+rain_green     = "#2eff6a"
+rain_green_dim = "#1cc24b"
+rain_green_hi  = "#62ff94"
+rain_cyan      = "#00efff"
+rain_teal      = "#24f6d9"
+rain_purple    = "#c770ff"
+rain_orange    = "#ffa83d"
+rain_gray      = "#8ca391"
+alert_red      = "#ff4b4b"
+alert_yellow   = "#e6ff57"
+alert_blue     = "#30b3ff"

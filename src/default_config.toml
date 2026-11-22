@@ -12,6 +12,8 @@
 #   "default_light" — built-in light theme
 #   "purple"        — Catppuccin Mocha-inspired (copy themes/purple.toml from
 #                     the repo to ~/.config/thrssty/themes/ first)
+#   "matrix"        — Matrix-inspired green-on-black (copy themes/matrix.toml
+#                     from the repo to ~/.config/thrssty/themes/ first)
 #   "name"          — ~/.config/thrssty/themes/name.toml
 #   "/usr/lib/helix/runtime/themes/name.toml" — direct file path
 #

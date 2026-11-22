@@ -314,3 +314,35 @@ myalias = "#003366"
         Some(Color::Rgb(0x00, 0x33, 0x66))
     );
 }
+
+// ── Shipped example themes ────────────────────────────────────────────────────
+
+#[test]
+fn matrix_example_theme_loads_with_expected_colours() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("themes/matrix.toml");
+    let theme = Theme::load_from_file(&path).expect("matrix example theme should load");
+
+    assert_eq!(
+        theme.style("ui.background").bg,
+        Some(Color::Rgb(0x0a, 0x0e, 0x0a))
+    );
+    assert_eq!(
+        theme.style("ui.text").fg,
+        Some(Color::Rgb(0x62, 0xff, 0x94))
+    );
+
+    let link = theme.style("article.link");
+    assert_eq!(link.fg, Some(Color::Rgb(0x30, 0xb3, 0xff)));
+    assert!(link.add_modifier.contains(Modifier::UNDERLINED));
+
+    // The selected row must stand out: dark ink on a solid green bar.
+    let selected = theme.style("article.selected");
+    assert_eq!(selected.fg, Some(Color::Rgb(0x0a, 0x0e, 0x0a)));
+    assert_eq!(selected.bg, Some(Color::Rgb(0x2e, 0xff, 0x6a)));
+
+    // Key chips use the same cyan as category headers.
+    assert_eq!(
+        theme.style("ui.statusline.key").fg,
+        Some(Color::Rgb(0x00, 0xef, 0xff))
+    );
+}

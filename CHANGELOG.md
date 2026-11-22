@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `"default"` value remains accepted as an alias
 - **`"purple"` example theme** (`themes/purple.toml`): the former built-in Catppuccin Mocha-inspired
   dark theme, saved as an installable example; copy to `~/.config/thrssty/themes/purple.toml`
+- **`"matrix"` example theme** (`themes/matrix.toml`): a Matrix-inspired green-on-black theme
+  based on the [OpenCode Matrix palette](https://github.com/anomalyco/opencode/blob/dev/packages/tui/src/theme/assets/matrix.json);
+  copy to `~/.config/thrssty/themes/matrix.toml`
 - **Helix theme file support**: `theme` in `config.toml` now accepts an absolute or relative
   path to any Helix-editor `.toml` theme file (e.g. `/usr/lib/helix/runtime/themes/ayu_evolve.toml`).
   `inherits` chains are resolved recursively (up to 8 levels). Unmapped Helix scopes are
