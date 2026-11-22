@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Publish the audit result as a check run (required by branch protection).
+      # The action publishes its result as a check run. It only files issues for
+      # scheduled runs, which this project does not rely on, so `issues: write`
+      # is deliberately not granted.
       checks: write
-      # Open an issue when a scheduled audit finds a new advisory.
-      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -28,4 +28,3 @@ jobs:
         uses: rustsec/audit-check@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
