@@ -12,7 +12,7 @@ categories = ["command-line-utilities"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [package.metadata.deb]
-maintainer = "thrssty contributors"
+maintainer = "Robert Krátký <rkratky@gmail.com>"
 copyright = "2023, Robert Krátký <rkratky@gmail.com>"
 license-file = ["LICENSE-MIT", "4"]
 extended-description = """\
