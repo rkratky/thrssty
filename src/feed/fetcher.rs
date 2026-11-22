@@ -78,46 +78,41 @@ pub fn spawn_fetch(urls: Vec<String>, tx: mpsc::Sender<FetchMessage>) {
 
 /// Extract a human-readable display name from a feed-rs `Person`.
 ///
-/// Feed-rs RSS 2.0 stores the raw `<author>` text in `person.email` (because
-/// that element is specified as an email field in RSS 2.0) and uses the XML
-/// element name as the default for `person.name` (always `"author"`).
+/// feed-rs 3 splits the raw author text into `name` and `email`, so `name` is
+/// now authoritative. Two quirks remain worth handling:
 ///
-/// Resolution order:
-/// 1. If `email` exists and contains `@`: look for a `(Name)` suffix and use it.
-/// 2. If `email` exists and has no `@`: it's a plain name or "Name (Name)" duplicate
-///    — strip the duplicate parenthetical and use the result.
-/// 3. Otherwise fall back to `person.name` if it is not the placeholder `"author"`.
+/// 1. For the RSS 2.0 `email@example.com (Real Name)` form, feed-rs derives the
+///    name from the parenthetical but leaves the parentheses attached, so
+///    `name` arrives as `"(Real Name)"`.
+/// 2. Older feeds can still deliver a bare name in the author field, which
+///    feed-rs reports as an `email` without an `@`.
 fn person_display_name(p: &Person) -> Option<String> {
+    if let Some(name) = &p.name {
+        let name = strip_duplicate_paren(strip_wrapping_parens(name));
+        if !name.is_empty() && name != "author" && !name.contains('@') {
+            return Some(name.to_owned());
+        }
+    }
+    // Fallback: a bare name delivered as the author "email".
     if let Some(raw) = &p.email {
-        if raw.contains('@') {
-            // Standard `email@example.com (Real Name)` format.
-            if let Some(name) = extract_paren_suffix(raw) {
-                return Some(name.to_owned());
-            }
-            // Bare email address — not useful as a display name.
-        } else {
-            // Plain name, possibly with a duplicate "(Name)" suffix.
-            let name = strip_duplicate_paren(raw);
+        if !raw.contains('@') {
+            let name = strip_duplicate_paren(strip_wrapping_parens(raw));
             if !name.is_empty() {
                 return Some(name.to_owned());
             }
         }
     }
-    // Fall back to `person.name` if it is a real name (not the RSS 2.0 default).
-    if !p.name.is_empty() && p.name != "author" && !p.name.contains('@') {
-        return Some(p.name.clone());
-    }
     None
 }
 
-/// If `s` ends with ` (something)`, return `something`.
-fn extract_paren_suffix(s: &str) -> Option<&str> {
-    if s.ends_with(')') {
-        if let Some(pos) = s.rfind(" (") {
-            return Some(&s[pos + 2..s.len() - 1]);
-        }
-    }
-    None
+/// Strip one layer of wrapping parentheses and surrounding whitespace:
+/// `"(First Last)"` → `"First Last"`. Other input is returned trimmed.
+fn strip_wrapping_parens(s: &str) -> &str {
+    let s = s.trim();
+    s.strip_prefix('(')
+        .and_then(|inner| inner.strip_suffix(')'))
+        .unwrap_or(s)
+        .trim()
 }
 
 /// If `s` is `"Name (Name)"` (exact duplicate), return `"Name"`, else return `s` unchanged.
@@ -267,4 +262,73 @@ fn fetch_feed(url: &str) -> crate::error::Result<(Option<String>, Vec<Article>)>
     articles.sort_by_key(|a| std::cmp::Reverse(a.published));
 
     Ok((feed_title, articles))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn person(name: Option<&str>, email: Option<&str>) -> Person {
+        Person {
+            name: name.map(str::to_owned),
+            uri: None,
+            email: email.map(str::to_owned),
+            role: None,
+        }
+    }
+
+    /// What feed-rs 3 produces for each RSS `<author>` shape, as observed from
+    /// the real parser, mapped to the display name we want to show.
+    #[test]
+    fn author_display_name_from_parsed_people() {
+        let cases = [
+            // `email (Name)`: feed-rs leaves the parentheses attached.
+            (
+                person(Some("(First Last)"), Some("user@example.com")),
+                Some("First Last"),
+            ),
+            // `Name <email>`: both fields populated cleanly.
+            (
+                person(Some("First Last"), Some("user@example.com")),
+                Some("First Last"),
+            ),
+            // Plain name.
+            (person(Some("First Last"), None), Some("First Last")),
+            // Bare email is not a display name.
+            (person(None, Some("user@example.com")), None),
+            // dc:creator.
+            (person(Some("Dee See"), None), Some("Dee See")),
+            // Duplicated parenthetical is collapsed.
+            (person(Some("Bob (Bob)"), None), Some("Bob")),
+            // Bare name delivered as the author "email".
+            (
+                person(Some("author"), Some("Legacy Name")),
+                Some("Legacy Name"),
+            ),
+            // The RSS 2.0 placeholder with nothing usable.
+            (person(Some("author"), None), None),
+            // Whitespace-only name falls through.
+            (person(Some("   "), None), None),
+            // A name that is only an email address is rejected.
+            (person(Some("user@example.com"), None), None),
+        ];
+
+        for (p, expected) in cases {
+            assert_eq!(
+                person_display_name(&p).as_deref(),
+                expected,
+                "unexpected display name for {p:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn strip_wrapping_parens_handles_bare_and_wrapped() {
+        assert_eq!(strip_wrapping_parens("(First Last)"), "First Last");
+        assert_eq!(strip_wrapping_parens("  (First Last)  "), "First Last");
+        assert_eq!(strip_wrapping_parens("First Last"), "First Last");
+        assert_eq!(strip_wrapping_parens("(First Last"), "(First Last");
+        assert_eq!(strip_wrapping_parens("First Last)"), "First Last)");
+        assert_eq!(strip_wrapping_parens(""), "");
+    }
 }
