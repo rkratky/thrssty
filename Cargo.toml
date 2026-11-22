@@ -45,7 +45,7 @@ crossterm = "0.29"
 html2text = "0.17"
 
 # RSS/Atom feed parsing
-feed-rs = "2"
+feed-rs = "3"
 
 # HTTP client (sync, minimal — fetches run on a background thread)
 ureq = "3"
