@@ -98,6 +98,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Markdown step. Tables are sized to the panel width; list blocks gain blank-line
   spacing; heading `#` prefixes are kept and styled bold. Removes two dependencies.
 - Key-hint separator in the status bar changed from `▌` to `●`
+- Dependency refresh: `html2text` 0.17, `ureq` 3 (with a shared, connection-pooled HTTP
+  agent), `toml` 1, `dirs` 7, `feed-rs` 2.4, and `ratatui` 0.30.2. The minimum supported
+  Rust version is now 1.96
 
 ### Fixed
 
@@ -127,6 +130,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   visual indication of scroll direction
 - Scrollbar thumb position: now correctly reaches the bottom of the track when content
   is fully scrolled in both the article list and article view panels
+- **Debian packaging metadata**: `cargo-deb` referenced `LICENSE-MIT`, `config.toml`, and
+  `feeds.toml`, none of which existed; the assets now point at the real files. Added the
+  missing `LICENSE-APACHE` so the dual MIT/Apache-2.0 licensing stated in the README and
+  manpage is complete
+
+### Security
+
+- Updated `quick-xml` to 0.41, `rustls` to 0.23.46, `rustls-webpki` to 0.103.17,
+  `webpki-roots` to 1.0.12, and `url` to 2.5.9, resolving 13 RustSec advisories —
+  including two high-severity denial-of-service bugs reachable from untrusted feeds
 
 ## [0.1.0] - 2026-03-01
 

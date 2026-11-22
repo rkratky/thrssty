@@ -34,8 +34,8 @@ fn from_env() -> Option<Background> {
     if let Ok(val) = std::env::var("TERM_BACKGROUND") {
         return match val.to_lowercase().as_str() {
             "light" => Some(Background::Light),
-            "dark"  => Some(Background::Dark),
-            _       => None,
+            "dark" => Some(Background::Dark),
+            _ => None,
         };
     }
 
@@ -43,7 +43,11 @@ fn from_env() -> Option<Background> {
     if let Ok(val) = std::env::var("COLORFGBG") {
         if let Some(bg_str) = val.split(';').next_back() {
             if let Ok(n) = bg_str.trim().parse::<u8>() {
-                return Some(if n < 8 { Background::Dark } else { Background::Light });
+                return Some(if n < 8 {
+                    Background::Dark
+                } else {
+                    Background::Light
+                });
             }
         }
     }
@@ -103,8 +107,7 @@ fn probe_osc11() -> Option<Background> {
             resp.push(buf[0]);
             // OSC response ends with BEL (0x07) or ST (ESC \\).
             let n = resp.len();
-            let done = buf[0] == 0x07
-                || (n >= 2 && resp[n - 2] == 0x1b && resp[n - 1] == 0x5c);
+            let done = buf[0] == 0x07 || (n >= 2 && resp[n - 2] == 0x1b && resp[n - 1] == 0x5c);
             if done || n > 64 {
                 break;
             }
@@ -140,7 +143,11 @@ fn parse_osc11_background(resp: &str) -> Option<Background> {
 
     // Standard relative luminance approximation.
     let lum = 0.299 * f32::from(r) + 0.587 * f32::from(g) + 0.114 * f32::from(b);
-    Some(if lum < 128.0 { Background::Dark } else { Background::Light })
+    Some(if lum < 128.0 {
+        Background::Dark
+    } else {
+        Background::Light
+    })
 }
 
 #[cfg(test)]
@@ -151,14 +158,20 @@ mod tests {
     fn osc11_dark_background_parsed() {
         // Simulated OSC 11 response for a very dark background (#0a0a0a).
         let resp = "\x1b]11;rgb:0a0a/0a0a/0a0a\x07";
-        assert!(matches!(parse_osc11_background(resp), Some(Background::Dark)));
+        assert!(matches!(
+            parse_osc11_background(resp),
+            Some(Background::Dark)
+        ));
     }
 
     #[test]
     fn osc11_light_background_parsed() {
         // Simulated OSC 11 response for white (#fafafa).
         let resp = "\x1b]11;rgb:fafa/fafa/fafa\x07";
-        assert!(matches!(parse_osc11_background(resp), Some(Background::Light)));
+        assert!(matches!(
+            parse_osc11_background(resp),
+            Some(Background::Light)
+        ));
     }
 
     #[test]

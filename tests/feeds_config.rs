@@ -4,7 +4,7 @@
 use std::io::Write as _;
 
 use tempfile::{NamedTempFile, TempDir};
-use thrssty::feeds_config::{FeedsFile, add_feed_to_file, remove_feed_from_file};
+use thrssty::feeds_config::{add_feed_to_file, remove_feed_from_file, FeedsFile};
 
 // ── Missing / empty file ──────────────────────────────────────────────────────
 
@@ -42,7 +42,10 @@ fn flat_feed_list_parsed_correctly() {
     let feeds = FeedsFile::load(f.path()).unwrap();
     assert!(feeds.categories.is_empty());
     assert_eq!(feeds.uncategorized.len(), 2);
-    assert_eq!(feeds.uncategorized[0].url, "https://blog.rust-lang.org/feed.xml");
+    assert_eq!(
+        feeds.uncategorized[0].url,
+        "https://blog.rust-lang.org/feed.xml"
+    );
     assert_eq!(feeds.uncategorized[0].name.as_deref(), Some("Rust Blog"));
     assert_eq!(feeds.uncategorized[1].name, None); // no name override
 }

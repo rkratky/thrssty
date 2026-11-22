@@ -129,20 +129,31 @@ fn purge_max_age_zero_is_no_op() {
         ..Default::default()
     };
     cache.purge_old_articles(0);
-    assert_eq!(cache.feeds[0].articles.len(), 1, "purge with 0 should not remove anything");
+    assert_eq!(
+        cache.feeds[0].articles.len(),
+        1,
+        "purge with 0 should not remove anything"
+    );
 }
 
 #[test]
 fn purge_removes_articles_older_than_max_age() {
-    let recent = make_article("new", Some(5));   // 5 days old
-    let stale  = make_article("old", Some(100)); // 100 days old
+    let recent = make_article("new", Some(5)); // 5 days old
+    let stale = make_article("old", Some(100)); // 100 days old
     let mut cache = Cache {
-        feeds: vec![make_feed("https://f.example.com/", vec![recent.clone(), stale.clone()])],
+        feeds: vec![make_feed(
+            "https://f.example.com/",
+            vec![recent.clone(), stale.clone()],
+        )],
         ..Default::default()
     };
     cache.purge_old_articles(30); // keep articles younger than 30 days
-    let ids: Vec<_> = cache.feeds[0].articles.iter().map(|a| a.id.as_str()).collect();
-    assert!(ids.contains(&"new"),  "recent article should be kept");
+    let ids: Vec<_> = cache.feeds[0]
+        .articles
+        .iter()
+        .map(|a| a.id.as_str())
+        .collect();
+    assert!(ids.contains(&"new"), "recent article should be kept");
     assert!(!ids.contains(&"old"), "stale article should be removed");
 }
 
@@ -156,7 +167,11 @@ fn purge_keeps_all_if_all_would_be_removed() {
         ..Default::default()
     };
     cache.purge_old_articles(30);
-    assert_eq!(cache.feeds[0].articles.len(), 1, "should preserve last article to avoid blank feed");
+    assert_eq!(
+        cache.feeds[0].articles.len(),
+        1,
+        "should preserve last article to avoid blank feed"
+    );
 }
 
 #[test]
@@ -167,14 +182,18 @@ fn purge_preserves_articles_without_published_date() {
         ..Default::default()
     };
     cache.purge_old_articles(30);
-    assert_eq!(cache.feeds[0].articles.len(), 1, "undated articles should survive purge");
+    assert_eq!(
+        cache.feeds[0].articles.len(),
+        1,
+        "undated articles should survive purge"
+    );
 }
 
 #[test]
 fn purge_cleans_stale_read_ids() {
     let url = "https://f.example.com/";
     let recent = make_article("new", Some(5));
-    let stale  = make_article("old", Some(100));
+    let stale = make_article("old", Some(100));
     let mut cache = Cache {
         feeds: vec![make_feed(url, vec![recent.clone(), stale.clone()])],
         ..Default::default()
@@ -184,7 +203,7 @@ fn purge_cleans_stale_read_ids() {
     cache.purge_old_articles(30);
     // "old" article is removed; its read-ID should also be gone.
     assert!(!cache.is_read(url, "old"), "stale read-ID should be purged");
-    assert!(cache.is_read(url, "new"),  "recent read-ID should be kept");
+    assert!(cache.is_read(url, "new"), "recent read-ID should be kept");
 }
 
 #[test]
@@ -201,11 +220,25 @@ fn purge_handles_multiple_feeds_independently() {
         ..Default::default()
     };
     cache.purge_old_articles(30);
-    let ids_a: Vec<_> = cache.feeds[0].articles.iter().map(|a| a.id.as_str()).collect();
-    let ids_b: Vec<_> = cache.feeds[1].articles.iter().map(|a| a.id.as_str()).collect();
-    assert!(!ids_a.contains(&"old-a"), "stale article in feed A should be removed");
-    assert!(ids_a.contains(&"new-a"),  "recent article in feed A should remain");
-    assert_eq!(ids_b, vec!["new-b"],   "feed B should be untouched");
+    let ids_a: Vec<_> = cache.feeds[0]
+        .articles
+        .iter()
+        .map(|a| a.id.as_str())
+        .collect();
+    let ids_b: Vec<_> = cache.feeds[1]
+        .articles
+        .iter()
+        .map(|a| a.id.as_str())
+        .collect();
+    assert!(
+        !ids_a.contains(&"old-a"),
+        "stale article in feed A should be removed"
+    );
+    assert!(
+        ids_a.contains(&"new-a"),
+        "recent article in feed A should remain"
+    );
+    assert_eq!(ids_b, vec!["new-b"], "feed B should be untouched");
 }
 
 // ── cache serialisation round-trip ────────────────────────────────────────────
@@ -222,8 +255,14 @@ fn cache_json_roundtrip_preserves_read_state() {
     let json = serde_json::to_string(&original).unwrap();
     let restored: Cache = serde_json::from_str(&json).unwrap();
 
-    assert!(restored.is_read(url, "a"), "read state should survive JSON round-trip");
-    assert!(!restored.is_read(url, "b"), "unread state should also survive");
+    assert!(
+        restored.is_read(url, "a"),
+        "read state should survive JSON round-trip"
+    );
+    assert!(
+        !restored.is_read(url, "b"),
+        "unread state should also survive"
+    );
 }
 
 #[test]

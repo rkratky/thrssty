@@ -95,8 +95,7 @@ impl Cache {
         if max_age_days == 0 {
             return;
         }
-        let cutoff = Utc::now()
-            - chrono::Duration::days(max_age_days.min(i64::MAX as u64) as i64);
+        let cutoff = Utc::now() - chrono::Duration::days(max_age_days.min(i64::MAX as u64) as i64);
         for feed in &mut self.feeds {
             let before = feed.articles.len();
             let surviving: Vec<_> = feed
@@ -145,10 +144,7 @@ pub enum InputMode {
         feed_title: Option<String>,
     },
     /// Awaiting Enter/Esc confirmation to delete a feed.
-    DeleteConfirm {
-        feed_url: String,
-        feed_name: String,
-    },
+    DeleteConfirm { feed_url: String, feed_name: String },
     /// Editing the display name of an existing feed.
     ///
     /// `feed_url` — URL key used to locate the entry in `feeds.toml`.

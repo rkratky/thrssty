@@ -1,7 +1,5 @@
 # thrssty
 
-[![Crates.io](https://img.shields.io/crates/v/thrssty.svg)](https://crates.io/crates/thrssty)
-[![Docs.rs](https://docs.rs/thrssty/badge.svg)](https://docs.rs/thrssty)
 [![CI](https://github.com/rkratky/thrssty/workflows/CI/badge.svg)](https://github.com/rkratky/thrssty/actions)
 
 A terminal RSS/Atom newsreader written in Rust, styled after the [Mutt](http://www.mutt.org/) email
@@ -68,14 +66,8 @@ between panels.
 ### From source
 
 ```bash
-# Requires Rust 1.75+ (install via https://rustup.rs)
+# Requires Rust 1.96+ (install via https://rustup.rs)
 cargo install --path .
-```
-
-### Via Cargo
-
-```bash
-cargo install thrssty
 ```
 
 ### Manual page

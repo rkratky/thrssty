@@ -301,7 +301,7 @@ fn toml_string(s: &str) -> String {
     for c in s.chars() {
         match c {
             '\\' => escaped.push_str("\\\\"),
-            '"'  => escaped.push_str("\\\""),
+            '"' => escaped.push_str("\\\""),
             '\n' => escaped.push_str("\\n"),
             '\r' => escaped.push_str("\\r"),
             '\t' => escaped.push_str("\\t"),
@@ -313,15 +313,11 @@ fn toml_string(s: &str) -> String {
     format!("\"{}\"", escaped)
 }
 
-
-
 /// Parse the text of a feeds.toml file into a `FeedsFile`.
 /// Returns `Err(String)` with a human-readable description on failure.
 fn parse_feeds_content(content: &str) -> std::result::Result<FeedsFile, String> {
     let value: toml::Value = toml::from_str(content).map_err(|e| e.to_string())?;
-    let table = value
-        .as_table()
-        .ok_or("feeds file must be a TOML table")?;
+    let table = value.as_table().ok_or("feeds file must be a TOML table")?;
 
     // ── Categories ───────────────────────────────────────────────────────────
     let mut categories: Vec<CategoryConfig> = Vec::new();
@@ -336,12 +332,14 @@ fn parse_feeds_content(content: &str) -> std::result::Result<FeedsFile, String> 
         let mut pairs: Vec<(&str, &toml::Value)> =
             cat_table.iter().map(|(k, v)| (k.as_str(), v)).collect();
 
-        pairs.sort_by(|(a, _), (b, _)| match (a.parse::<u64>(), b.parse::<u64>()) {
-            (Ok(na), Ok(nb)) => na.cmp(&nb),
-            (Ok(_), Err(_)) => std::cmp::Ordering::Less,
-            (Err(_), Ok(_)) => std::cmp::Ordering::Greater,
-            (Err(_), Err(_)) => a.cmp(b),
-        });
+        pairs.sort_by(
+            |(a, _), (b, _)| match (a.parse::<u64>(), b.parse::<u64>()) {
+                (Ok(na), Ok(nb)) => na.cmp(&nb),
+                (Ok(_), Err(_)) => std::cmp::Ordering::Less,
+                (Err(_), Ok(_)) => std::cmp::Ordering::Greater,
+                (Err(_), Err(_)) => a.cmp(b),
+            },
+        );
 
         for (key, val) in pairs {
             let tbl = val
@@ -387,10 +385,7 @@ fn parse_feed_array(val: Option<&toml::Value>) -> std::result::Result<Vec<FeedCo
         let Some(url) = t.get("url").and_then(|v| v.as_str()) else {
             continue; // url is required; skip malformed entries
         };
-        let name = t
-            .get("name")
-            .and_then(|v| v.as_str())
-            .map(|s| s.to_owned());
+        let name = t.get("name").and_then(|v| v.as_str()).map(|s| s.to_owned());
         feeds.push(FeedConfig {
             url: url.to_owned(),
             name,

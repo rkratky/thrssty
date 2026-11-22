@@ -1,4 +1,4 @@
-use std::sync::mpsc;
+use std::sync::{mpsc, OnceLock};
 use std::thread;
 use std::time::Duration;
 
@@ -13,13 +13,31 @@ use crate::html::decode_html_entities;
 /// Timeout for all outbound HTTP requests (both validation probes and feed fetches).
 const FETCH_TIMEOUT: Duration = Duration::from_secs(30);
 
+/// Shared HTTP agent with the global fetch timeout applied.
+///
+/// Reusing a single agent lets ureq pool connections across feeds and refreshes
+/// instead of opening a new pool for every request.
+fn http_agent() -> &'static ureq::Agent {
+    static AGENT: OnceLock<ureq::Agent> = OnceLock::new();
+    AGENT.get_or_init(|| {
+        ureq::Agent::config_builder()
+            .timeout_global(Some(FETCH_TIMEOUT))
+            .build()
+            .into()
+    })
+}
+
 /// Messages sent from the background fetch thread to the UI thread.
 #[derive(Debug)]
 pub enum FetchMessage {
     /// A fetch has started for this URL.
     Started { url: String },
     /// Articles were successfully fetched.
-    Complete { url: String, feed_title: Option<String>, articles: Vec<Article> },
+    Complete {
+        url: String,
+        feed_title: Option<String>,
+        articles: Vec<Article>,
+    },
     /// The fetch failed.
     Error { url: String, reason: String },
     /// All requested URLs have been processed.
@@ -123,18 +141,21 @@ fn strip_duplicate_paren(s: &str) -> &str {
 /// Returns `Ok(Some(title))` on success with a title, `Ok(None)` when the
 /// feed parses but has no title, or an error on network / parse failure.
 pub fn probe_feed(url: &str) -> crate::error::Result<Option<String>> {
-    let response = ureq::get(url)
-        .timeout(FETCH_TIMEOUT)
+    let mut response = http_agent()
+        .get(url)
         .call()
         .map_err(|e| AppError::FeedFetch {
             url: url.to_owned(),
             reason: e.to_string(),
         })?;
 
-    let body = response.into_string().map_err(|e| AppError::FeedFetch {
-        url: url.to_owned(),
-        reason: e.to_string(),
-    })?;
+    let body = response
+        .body_mut()
+        .read_to_string()
+        .map_err(|e| AppError::FeedFetch {
+            url: url.to_owned(),
+            reason: e.to_string(),
+        })?;
 
     let feed = parser::parse(body.as_bytes()).map_err(|e| AppError::FeedFetch {
         url: url.to_owned(),
@@ -145,18 +166,21 @@ pub fn probe_feed(url: &str) -> crate::error::Result<Option<String>> {
 }
 
 fn fetch_feed(url: &str) -> crate::error::Result<(Option<String>, Vec<Article>)> {
-    let response = ureq::get(url)
-        .timeout(FETCH_TIMEOUT)
+    let mut response = http_agent()
+        .get(url)
         .call()
         .map_err(|e| AppError::FeedFetch {
-        url: url.to_owned(),
-        reason: e.to_string(),
-    })?;
+            url: url.to_owned(),
+            reason: e.to_string(),
+        })?;
 
-    let body = response.into_string().map_err(|e| AppError::FeedFetch {
-        url: url.to_owned(),
-        reason: e.to_string(),
-    })?;
+    let body = response
+        .body_mut()
+        .read_to_string()
+        .map_err(|e| AppError::FeedFetch {
+            url: url.to_owned(),
+            reason: e.to_string(),
+        })?;
 
     let feed = parser::parse(body.as_bytes()).map_err(|e| AppError::FeedFetch {
         url: url.to_owned(),
@@ -201,13 +225,9 @@ fn fetch_feed(url: &str) -> crate::error::Result<(Option<String>, Vec<Article>)>
             // Pick the first author that yields a usable display name.
             // `person_display_name` handles the RSS 2.0 quirk where the raw
             // <author> text ends up in `person.email`, not `person.name`.
-            let author = entry
-                .authors
-                .iter()
-                .find_map(person_display_name);
+            let author = entry.authors.iter().find_map(person_display_name);
 
-            let categories: Vec<String> =
-                entry.categories.iter().map(|c| c.term.clone()).collect();
+            let categories: Vec<String> = entry.categories.iter().map(|c| c.term.clone()).collect();
 
             Article {
                 id: entry.id,
@@ -237,11 +257,14 @@ fn fetch_feed(url: &str) -> crate::error::Result<(Option<String>, Vec<Article>)>
     // with identical titles and publication timestamps.  Keep the first
     // (typically the original); the replacement entry has less reader value since
     // the story was already seen.
-    let mut seen_title_date: std::collections::HashSet<(String, Option<chrono::DateTime<chrono::Utc>>)> = std::collections::HashSet::new();
+    let mut seen_title_date: std::collections::HashSet<(
+        String,
+        Option<chrono::DateTime<chrono::Utc>>,
+    )> = std::collections::HashSet::new();
     articles.retain(|a| seen_title_date.insert((a.title.clone(), a.published)));
 
     // Sort newest-first.
-    articles.sort_by(|a, b| b.published.cmp(&a.published));
+    articles.sort_by_key(|a| std::cmp::Reverse(a.published));
 
     Ok((feed_title, articles))
 }

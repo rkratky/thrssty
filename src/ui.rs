@@ -2,8 +2,10 @@ use ratatui::{
     layout::{Constraint, Layout, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, ListState, Padding, Paragraph,
-              Scrollbar, ScrollbarOrientation, ScrollbarState, Wrap},
+    widgets::{
+        Block, Borders, List, ListItem, ListState, Padding, Paragraph, Scrollbar,
+        ScrollbarOrientation, ScrollbarState, Wrap,
+    },
     Frame,
 };
 
@@ -37,9 +39,9 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         Constraint::Length(1),
     ])
     .split(area);
-    let main_area   = outer[0];
-    let input_area  = outer[1];
-    let hints_area  = outer[2];
+    let main_area = outer[0];
+    let input_area = outer[1];
+    let hints_area = outer[2];
 
     // Main: feed sidebar | right content.
     let sidebar_pct = app.config.layout.sidebar_width;
@@ -52,7 +54,8 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         .split(main_chunks[1]);
 
     // Expose the article view dimensions so the App can clamp scrolling and size renders.
-    app.ui.article_view_height = content_chunks[1].height.saturating_sub(2); // minus borders
+    // Height: inner rows, minus the top and bottom borders.
+    app.ui.article_view_height = content_chunks[1].height.saturating_sub(2);
     // Inner width: area minus 2 border cols minus 2 padding cols (Padding::horizontal(1)).
     app.ui.article_view_width = content_chunks[1].width.saturating_sub(4);
 
@@ -82,17 +85,19 @@ fn draw_feed_sidebar(frame: &mut Frame, app: &mut App, area: Rect) {
         .items
         .iter()
         .map(|item| match item {
-            SidebarItem::Category { title, feed_indices } => {
+            SidebarItem::Category {
+                title,
+                feed_indices,
+            } => {
                 // Aggregate total and unread counts across all feeds in this category.
-                let (total, unread) =
-                    feed_indices.iter().fold((0usize, 0usize), |(t, u), &idx| {
-                        if let Some(feed) = app.feeds.get(idx) {
-                            let feed_unread = app.cache.unread_count(&feed.url, &feed.articles);
-                            (t + feed.articles.len(), u + feed_unread)
-                        } else {
-                            (t, u)
-                        }
-                    });
+                let (total, unread) = feed_indices.iter().fold((0usize, 0usize), |(t, u), &idx| {
+                    if let Some(feed) = app.feeds.get(idx) {
+                        let feed_unread = app.cache.unread_count(&feed.url, &feed.articles);
+                        (t + feed.articles.len(), u + feed_unread)
+                    } else {
+                        (t, u)
+                    }
+                });
 
                 let indicator = if unread > 0 { "● " } else { "  " };
                 let counts = format!(" ({unread})/{total}");
@@ -112,7 +117,10 @@ fn draw_feed_sidebar(frame: &mut Frame, app: &mut App, area: Rect) {
                 ListItem::new(Span::styled(text, style))
             }
 
-            SidebarItem::Feed { feed_index, indented } => {
+            SidebarItem::Feed {
+                feed_index,
+                indented,
+            } => {
                 let Some(feed) = app.feeds.get(*feed_index) else {
                     return ListItem::new(Line::raw(""));
                 };
@@ -151,7 +159,10 @@ fn draw_feed_sidebar(frame: &mut Frame, app: &mut App, area: Rect) {
 
     let block = Block::default()
         .borders(Borders::ALL)
-        .title(Span::styled(" Feeds ", t.style("ui.text").add_modifier(Modifier::BOLD)))
+        .title(Span::styled(
+            " Feeds ",
+            t.style("ui.text").add_modifier(Modifier::BOLD),
+        ))
         .style(bg_style);
 
     // All item styling is applied explicitly above; highlight_style adds nothing extra.
@@ -165,7 +176,14 @@ fn draw_feed_sidebar(frame: &mut Frame, app: &mut App, area: Rect) {
 
     let viewport_rows = area.height.saturating_sub(2) as usize;
     let total_rows = app.sidebar.items.len();
-    draw_scrollbar(frame, area, total_rows, offset, viewport_rows, t.style("ui.text"));
+    draw_scrollbar(
+        frame,
+        area,
+        total_rows,
+        offset,
+        viewport_rows,
+        t.style("ui.text"),
+    );
 }
 
 // ── Article list ──────────────────────────────────────────────────────────────
@@ -177,11 +195,10 @@ fn draw_article_list(frame: &mut Frame, app: &mut App, area: Rect) {
     // Use direct field access so the compiler can see that articles/feed_name/feed_url
     // borrow only from app.feeds, leaving app.ui free for mutation (author col cache).
     let feed_idx = app.ui.selected_feed;
-    let (feed_name, feed_url, articles): (&str, &str, &[Article]) =
-        match app.feeds.get(feed_idx) {
-            Some(f) => (f.name.as_str(), f.url.as_str(), f.articles.as_slice()),
-            None    => ("(no feeds)", "", &[]),
-        };
+    let (feed_name, feed_url, articles): (&str, &str, &[Article]) = match app.feeds.get(feed_idx) {
+        Some(f) => (f.name.as_str(), f.url.as_str(), f.articles.as_slice()),
+        None => ("(no feeds)", "", &[]),
+    };
 
     // ── Column widths ─────────────────────────────────────────────────────────
     // Layout: [borders 2][indicator 2][title + space 1][author col][2 sep][date 10][slack 2]
@@ -205,13 +222,16 @@ fn draw_article_list(frame: &mut Frame, app: &mut App, area: Rect) {
             .max()
             .unwrap_or(0);
     }
-    let author_col: usize = app.ui.raw_author_col.min(inner_width * max_author_pct / 100);
+    let author_col: usize = app
+        .ui
+        .raw_author_col
+        .min(inner_width * max_author_pct / 100);
 
     // 2 separator spaces between author column and date (only when column is used).
     let author_section: usize = if author_col > 0 { author_col + 2 } else { 0 };
 
-    let title_width = (area.width as usize)
-        .saturating_sub(2 + 2 + 1 + author_section + date_width + slack);
+    let title_width =
+        (area.width as usize).saturating_sub(2 + 2 + 1 + author_section + date_width + slack);
 
     let items: Vec<ListItem> = articles
         .iter()
@@ -272,7 +292,10 @@ fn draw_article_list(frame: &mut Frame, app: &mut App, area: Rect) {
 
     let block = Block::default()
         .borders(Borders::ALL)
-        .title(Span::styled(title_text, t.style("ui.text").add_modifier(Modifier::BOLD)))
+        .title(Span::styled(
+            title_text,
+            t.style("ui.text").add_modifier(Modifier::BOLD),
+        ))
         .style(bg_style);
 
     let list = if items.is_empty() {
@@ -297,7 +320,14 @@ fn draw_article_list(frame: &mut Frame, app: &mut App, area: Rect) {
     app.ui.article_list_offset = offset;
 
     let viewport_rows = area.height.saturating_sub(2) as usize;
-    draw_scrollbar(frame, area, total, offset, viewport_rows, t.style("ui.text"));
+    draw_scrollbar(
+        frame,
+        area,
+        total,
+        offset,
+        viewport_rows,
+        t.style("ui.text"),
+    );
 }
 
 // ── Article view ──────────────────────────────────────────────────────────────
@@ -364,9 +394,10 @@ fn draw_article_view(frame: &mut Frame, app: &mut App, area: Rect) {
         lines.push(divider.clone());
 
         // Find the first summary line that has actual visible text.
-        let first_summary_idx = app.description_lines.iter().position(|l| {
-            l.spans.iter().any(|s| !s.content.trim().is_empty())
-        });
+        let first_summary_idx = app
+            .description_lines
+            .iter()
+            .position(|l| l.spans.iter().any(|s| !s.content.trim().is_empty()));
         // Check whether the article body has visible content.
         let has_body = app
             .article_lines
@@ -442,9 +473,7 @@ fn draw_input_line(frame: &mut Frame, app: &App, area: Rect) {
             Line::from(Span::styled(text, input_style))
         }
         InputMode::DeleteConfirm { feed_name, .. } => {
-            let text = format!(
-                " Delete '{feed_name}'? [Enter: confirm • Esc: cancel]"
-            );
+            let text = format!(" Delete '{feed_name}'? [Enter: confirm • Esc: cancel]");
             Line::from(Span::styled(text, input_style))
         }
         InputMode::EditFeedName { .. } => {
@@ -456,7 +485,11 @@ fn draw_input_line(frame: &mut Frame, app: &App, area: Rect) {
             let (text, style) = if let Some(fetching) = &app.ui.fetching {
                 (format!(" ⟳ Fetching {}…", fetching), bar_style)
             } else if let Some(msg) = &app.ui.status_message {
-                let s = if app.ui.status_is_error { err_style } else { bar_style };
+                let s = if app.ui.status_is_error {
+                    err_style
+                } else {
+                    bar_style
+                };
                 (format!(" {msg}"), s)
             } else {
                 (String::new(), bar_style)
@@ -505,27 +538,39 @@ fn draw_hints_line(frame: &mut Frame, app: &App, area: Rect) {
     // Build combined key strings from config values.
     let refresh_key = format!("{}({})", keys.refresh_feed, keys.refresh_all);
     let feed_nav_key = format!("{}/{}", keys.feed_down, keys.feed_up);
-    let article_nav_key = format!("{}/{}", pretty_key(&keys.article_up), pretty_key(&keys.article_down));
-    let scroll_line_key = format!("{}/{}", pretty_key(&keys.scroll_line_up), pretty_key(&keys.scroll_line_down));
-    let scroll_page_key = format!("{}/{}", pretty_key(&keys.scroll_up), pretty_key(&keys.scroll_down));
+    let article_nav_key = format!(
+        "{}/{}",
+        pretty_key(&keys.article_up),
+        pretty_key(&keys.article_down)
+    );
+    let scroll_line_key = format!(
+        "{}/{}",
+        pretty_key(&keys.scroll_line_up),
+        pretty_key(&keys.scroll_line_down)
+    );
+    let scroll_page_key = format!(
+        "{}/{}",
+        pretty_key(&keys.scroll_up),
+        pretty_key(&keys.scroll_down)
+    );
 
     let entries: &[Option<(&str, &str)>] = &[
         // App controls
-        Some((&keys.quit,          "quit")),
-        Some((&refresh_key,        "refresh(all)")),
+        Some((&keys.quit, "quit")),
+        Some((&refresh_key, "refresh(all)")),
         Some((&keys.reload_config, "reload config")),
         None, // section separator
         // Feed controls
-        Some((&feed_nav_key,     "feeds")),
-        Some((&keys.add_feed,    "add")),
+        Some((&feed_nav_key, "feeds")),
+        Some((&keys.add_feed, "add")),
         Some((&keys.delete_feed, "delete")),
-        Some((&keys.edit_feed,   "edit name")),
+        Some((&keys.edit_feed, "edit name")),
         None, // section separator
         // Article navigation
-        Some((&article_nav_key,   "articles")),
+        Some((&article_nav_key, "articles")),
         Some((&keys.open_browser, "open")),
-        Some((&scroll_line_key,   "line up/down")),
-        Some((&scroll_page_key,   "page up/down")),
+        Some((&scroll_line_key, "line up/down")),
+        Some((&scroll_page_key, "page up/down")),
     ];
 
     // Build spans: key (bold+highlight) then ": " then description, space-separated.
@@ -558,10 +603,7 @@ fn draw_hints_line(frame: &mut Frame, app: &App, area: Rect) {
     let mut padded = vec![Span::styled(pad, bar_style)];
     padded.extend(spans);
 
-    frame.render_widget(
-        Paragraph::new(Line::from(padded)).style(bar_style),
-        area,
-    );
+    frame.render_widget(Paragraph::new(Line::from(padded)).style(bar_style), area);
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -592,18 +634,18 @@ fn key_spans(key: &str, key_style: Style, bar_style: Style) -> Vec<Span<'static>
 /// Map a config key name to a compact display symbol where one exists.
 fn pretty_key(key: &str) -> &str {
     match key {
-        "Up"       => "↑",
-        "Down"     => "↓",
-        "Left"     => "←",
-        "Right"    => "→",
-        "PageUp"   => "PgUp",
+        "Up" => "↑",
+        "Down" => "↓",
+        "Left" => "←",
+        "Right" => "→",
+        "PageUp" => "PgUp",
         "PageDown" => "PgDn",
-        "Home"     => "Home",
-        "End"      => "End",
-        "Enter"    => "↵",
-        "Esc"      => "Esc",
-        "Tab"      => "Tab",
-        other      => other,
+        "Home" => "Home",
+        "End" => "End",
+        "Enter" => "↵",
+        "Esc" => "Esc",
+        "Tab" => "Tab",
+        other => other,
     }
 }
 
@@ -628,8 +670,7 @@ fn draw_scrollbar(
 
     // content_length = max_scroll + 1 so that position == max_scroll puts
     // the thumb exactly at the bottom of the track.
-    let mut state = ScrollbarState::new(max_scroll + 1)
-        .position(position.min(max_scroll));
+    let mut state = ScrollbarState::new(max_scroll + 1).position(position.min(max_scroll));
 
     // Inset the scrollbar area by one row top and bottom so the ▲/▼ arrows
     // appear just inside the panel corners rather than on them.
