@@ -16,7 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Publish the audit result as a check run.
+      # The action publishes its result as a check run. It only files issues for
+      # scheduled runs, which this project does not rely on, so `issues: write`
+      # is deliberately not granted.
       checks: write
     steps:
       - name: Checkout repository
