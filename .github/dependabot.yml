@@ -8,15 +8,13 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     groups:
-      # Batch routine updates into one PR; major bumps stay separate.
+      # Batch patch updates into one PR. Minor bumps stay separate: for 0.x
+      # crates such as ratatui and crossterm a minor bump is usually breaking,
+      # and Dependabot would otherwise group those as "minor".
       patch-updates:
         applies-to: version-updates
         update-types:
           - "patch"
-      minor-updates:
-        applies-to: version-updates
-        update-types:
-          - "minor"
   - package-ecosystem: "github-actions"
     directory: "/"
     # Check for updates every Monday

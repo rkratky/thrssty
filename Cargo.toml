@@ -13,7 +13,7 @@ categories = ["command-line-utilities"]
 
 [package.metadata.deb]
 maintainer = "thrssty contributors"
-copyright = "2026, thrssty contributors"
+copyright = "2023, Robert Krátký <rkratky@gmail.com>"
 license-file = ["LICENSE-MIT", "4"]
 extended-description = """\
 thrssty is a terminal-based RSS/Atom newsreader with a three-panel layout \
@@ -33,6 +33,9 @@ assets = [
     ["src/example_feeds.toml", "usr/share/doc/thrssty/feeds.toml.example", "644"],
     ["README.md", "usr/share/doc/thrssty/README.md", "644"],
     ["CHANGELOG.md", "usr/share/doc/thrssty/changelog", "644"],
+    # Both licence texts, since the package declares MIT OR Apache-2.0
+    ["LICENSE-MIT", "usr/share/doc/thrssty/LICENSE-MIT", "644"],
+    ["LICENSE-APACHE", "usr/share/doc/thrssty/LICENSE-APACHE", "644"],
 ]
 
 [dependencies]

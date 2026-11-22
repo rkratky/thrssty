@@ -66,7 +66,7 @@ between panels.
 ### From source
 
 ```bash
-# Requires Rust 1.96+ (install via https://rustup.rs)
+# Requires Rust 1.96.1+ (install via https://rustup.rs)
 cargo install --path .
 ```
 
@@ -139,7 +139,7 @@ value in a lower-priority source; absent keys fall back to defaults.
 
 The configuration file lives at `~/.config/thrssty/config.toml`. Run `thrssty --init` to
 generate the file with all default values and annotations, or copy the bundled
-[`config.toml`](config.toml) manually.
+[`config.toml`](src/default_config.toml) manually.
 
 All options are optional; omitting any key restores its default.
 
@@ -188,7 +188,8 @@ Single characters are written as-is (`"q"`, `"j"`, `"R"`). Named keys: `"Up"`, `
 
 Feeds and categories are defined in a separate file, by default
 `~/.config/thrssty/feeds.toml` (configurable via `feeds_file` in `config.toml`).
-A ready-to-edit example is included in the repository as [`feeds.toml`](feeds.toml).
+A ready-to-edit example is included in the repository as
+[`feeds.toml`](src/example_feeds.toml).
 
 The file is **optional**: thrssty starts with an empty sidebar if it does not
 exist. Press `a` in the UI to add feeds interactively — they are written to the

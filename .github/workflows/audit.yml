@@ -12,14 +12,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Every run publishes the result as a check run, which the `audit` required
+  # status check on `main` depends on.
   audit:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Publish the audit result as a check run (required by branch protection).
       checks: write
-      # Open an issue when a scheduled audit finds a new advisory.
-      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -29,3 +29,21 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+  # The scheduled run additionally files an issue for each new advisory, so it
+  # needs `issues: write`. That scope is not granted to push or pull_request
+  # runs, where the action never creates issues.
+  scheduled-audit:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - uses: Swatinem/rust-cache@v2
+      - name: Run security audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

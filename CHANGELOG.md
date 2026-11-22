@@ -98,9 +98,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Markdown step. Tables are sized to the panel width; list blocks gain blank-line
   spacing; heading `#` prefixes are kept and styled bold. Removes two dependencies.
 - Key-hint separator in the status bar changed from `▌` to `●`
+- **`feed-rs` 3 migration**: feed-rs now splits an author's name from their email, so the
+  display-name heuristics are much simpler. Author names in the `Name <email@example.com>`
+  form are shown for the first time; previously they were dropped entirely. Article URLs
+  now ignore the `<comments>` / `<wfw:commentRss>` links that feed-rs 3 adds to the entry, so
+  an entry whose comments element precedes its link no longer opens the comments anchor.
+  Feeds are now passed to the parser as raw bytes, so the XML-declared encoding is honoured
+  and non-UTF-8 feeds served as `application/rss+xml` load again
 - Dependency refresh: `html2text` 0.17, `ureq` 3 (with a shared, connection-pooled HTTP
-  agent), `toml` 1, `dirs` 7, `feed-rs` 2.4, and `ratatui` 0.30.2. The minimum supported
-  Rust version is now 1.96
+  agent), `toml` 1, `dirs` 7, and `ratatui` 0.30.2. The minimum supported Rust version is
+  now 1.96.1
 
 ### Fixed
 
@@ -131,13 +138,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scrollbar thumb position: now correctly reaches the bottom of the track when content
   is fully scrolled in both the article list and article view panels
 - **Debian packaging metadata**: `cargo-deb` referenced `LICENSE-MIT`, `config.toml`, and
-  `feeds.toml`, none of which existed; the assets now point at the real files. Added the
-  missing `LICENSE-APACHE` so the dual MIT/Apache-2.0 licensing stated in the README and
-  manpage is complete
+  `feeds.toml`, none of which existed; the assets now point at the real files, both licence
+  texts ship in the package, and the copyright field names the actual holder
 
 ### Security
 
-- Updated `quick-xml` to 0.41, `rustls` to 0.23.46, `rustls-webpki` to 0.103.17,
+- Updated `quick-xml` to 0.42, `rustls` to 0.23.46, `rustls-webpki` to 0.103.17,
   `webpki-roots` to 1.0.12, and `url` to 2.5.9, resolving 13 RustSec advisories —
   including two high-severity denial-of-service bugs reachable from untrusted feeds
 
