@@ -1,10 +1,7 @@
-use html2text::{
-    config,
-    render::RichAnnotation,
-};
-use std::fmt::Write as _;
+use html2text::{config, render::RichAnnotation};
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
+use std::fmt::Write as _;
 
 /// Styles passed in from the active theme for rendering article content.
 #[derive(Debug, Clone, Copy, Default)]
@@ -80,7 +77,9 @@ pub fn html_to_lines(html: &str, styles: ArticleStyles, width: u16) -> Vec<Line<
                     vec![Span::styled(ts.s.clone(), style)]
                 };
                 for span in with_refs {
-                    if span.style == style && (span.content.contains("http://") || span.content.contains("https://")) {
+                    if span.style == style
+                        && (span.content.contains("http://") || span.content.contains("https://"))
+                    {
                         spans.extend(highlight_naked_urls(&span.content, style, styles.link));
                     } else {
                         spans.push(span);
@@ -116,9 +115,13 @@ pub fn html_to_lines(html: &str, styles: ArticleStyles, width: u16) -> Vec<Line<
                 _ => styles.h3,
             };
             lines.push(Line::from(
-                spans.into_iter().map(|s| Span::styled(s.content, hstyle)).collect::<Vec<_>>(),
+                spans
+                    .into_iter()
+                    .map(|s| Span::styled(s.content, hstyle))
+                    .collect::<Vec<_>>(),
             ));
-            let next_is_blank = rich_lines.get(i + 1)
+            let next_is_blank = rich_lines
+                .get(i + 1)
                 .map(|nl| nl.tagged_strings().all(|ts| ts.s.trim().is_empty()))
                 .unwrap_or(false);
             if !next_is_blank {
@@ -133,7 +136,11 @@ pub fn html_to_lines(html: &str, styles: ArticleStyles, width: u16) -> Vec<Line<
 
     // Footnotes section.
     if !footnote_urls.is_empty() {
-        if !lines.last().map(|l: &Line| l.spans.is_empty()).unwrap_or(true) {
+        if !lines
+            .last()
+            .map(|l: &Line| l.spans.is_empty())
+            .unwrap_or(true)
+        {
             lines.push(Line::raw(""));
         }
         lines.push(Line::raw("─".repeat(40)));
@@ -153,9 +160,10 @@ pub fn html_to_lines(html: &str, styles: ArticleStyles, width: u16) -> Vec<Line<
 
 /// Add a blank line if the last emitted line is not already blank.
 fn ensure_blank_before(lines: &mut Vec<Line<'static>>) {
-    let last_blank = lines.last().map(|l: &Line| {
-        l.spans.is_empty() || l.spans.iter().all(|s| s.content.trim().is_empty())
-    }).unwrap_or(true);
+    let last_blank = lines
+        .last()
+        .map(|l: &Line| l.spans.is_empty() || l.spans.iter().all(|s| s.content.trim().is_empty()))
+        .unwrap_or(true);
     if !last_blank {
         lines.push(Line::raw(""));
     }
@@ -179,7 +187,10 @@ fn split_footnote_refs(text: &str, base: Style, dim: Style) -> Vec<Span<'static>
             if lb > 0 {
                 result.push(Span::styled(rest[..lb].to_owned(), base));
             }
-            result.push(Span::styled(rest[lb..lb + 1 + digit_len + 1].to_owned(), dim));
+            result.push(Span::styled(
+                rest[lb..lb + 1 + digit_len + 1].to_owned(),
+                dim,
+            ));
             rest = &rest[lb + 1 + digit_len + 1..];
         } else {
             // Not a footnote ref — include the '[' in base text and move on.
@@ -198,9 +209,7 @@ fn highlight_naked_urls(text: &str, base: Style, link_style: Style) -> Vec<Span<
     let mut rest = text;
 
     while !rest.is_empty() {
-        let url_start = rest
-            .find("https://")
-            .or_else(|| rest.find("http://"));
+        let url_start = rest.find("https://").or_else(|| rest.find("http://"));
 
         let Some(pos) = url_start else {
             result.push(Span::styled(rest.to_owned(), base));
@@ -222,7 +231,6 @@ fn highlight_naked_urls(text: &str, base: Style, link_style: Style) -> Vec<Span<
     }
     result
 }
-
 
 fn is_list_item(text: &str) -> bool {
     let t = text.trim_start_matches(' ');
@@ -255,14 +263,24 @@ fn annotation_style(annotations: &[RichAnnotation], styles: &ArticleStyles) -> S
     for ann in annotations {
         match ann {
             RichAnnotation::Default => {}
-            RichAnnotation::Emphasis => { style = style.add_modifier(Modifier::ITALIC); }
-            RichAnnotation::Strong => { style = style.add_modifier(Modifier::BOLD); }
-            RichAnnotation::Strikeout => { style = style.add_modifier(Modifier::CROSSED_OUT); }
+            RichAnnotation::Emphasis => {
+                style = style.add_modifier(Modifier::ITALIC);
+            }
+            RichAnnotation::Strong => {
+                style = style.add_modifier(Modifier::BOLD);
+            }
+            RichAnnotation::Strikeout => {
+                style = style.add_modifier(Modifier::CROSSED_OUT);
+            }
             RichAnnotation::Code | RichAnnotation::Preformat(_) => {
                 style = style.patch(styles.code);
             }
-            RichAnnotation::Link(_) => { style = style.patch(styles.link); }
-            RichAnnotation::Image(_) => { style = style.add_modifier(Modifier::ITALIC); }
+            RichAnnotation::Link(_) => {
+                style = style.patch(styles.link);
+            }
+            RichAnnotation::Image(_) => {
+                style = style.add_modifier(Modifier::ITALIC);
+            }
             RichAnnotation::Colour(_) | RichAnnotation::BgColour(_) => {}
             _ => {}
         }
@@ -313,8 +331,6 @@ fn markdown_links_to_html(text: &str) -> String {
     }
     out
 }
-
-
 
 /// Replace `<a href="url">content</a>` with `<a href="url">content[n]</a>`
 /// and return the list of footnote URLs.
@@ -394,7 +410,16 @@ fn find_a_open(s: &str) -> Option<usize> {
         let next = b.get(abs + 1).copied();
         if matches!(next, Some(b'a') | Some(b'A')) {
             let boundary = b.get(abs + 2).copied();
-            if matches!(boundary, Some(b' ') | Some(b'\t') | Some(b'\n') | Some(b'\r') | Some(b'>') | Some(b'/') | None) {
+            if matches!(
+                boundary,
+                Some(b' ')
+                    | Some(b'\t')
+                    | Some(b'\n')
+                    | Some(b'\r')
+                    | Some(b'>')
+                    | Some(b'/')
+                    | None
+            ) {
                 return Some(abs);
             }
         }
@@ -414,19 +439,28 @@ fn parse_a_open(s: &str) -> Option<(Option<String>, usize)> {
             b'>' => return Some((href, pos + 1)),
             b'/' if bytes.get(pos + 1) == Some(&b'>') => return Some((href, pos + 2)),
             b'\'' | b'"' => {
-                let q = bytes[pos]; pos += 1;
-                while pos < bytes.len() && bytes[pos] != q { pos += 1; }
-                if pos < bytes.len() { pos += 1; }
+                let q = bytes[pos];
+                pos += 1;
+                while pos < bytes.len() && bytes[pos] != q {
+                    pos += 1;
+                }
+                if pos < bytes.len() {
+                    pos += 1;
+                }
             }
             c if c.eq_ignore_ascii_case(&b'h')
                 && s.len() > pos + 4
                 && s[pos..pos + 4].eq_ignore_ascii_case("href") =>
             {
                 pos += 4;
-                while pos < bytes.len() && matches!(bytes[pos], b' ' | b'\t') { pos += 1; }
+                while pos < bytes.len() && matches!(bytes[pos], b' ' | b'\t') {
+                    pos += 1;
+                }
                 if bytes.get(pos) == Some(&b'=') {
                     pos += 1;
-                    while pos < bytes.len() && matches!(bytes[pos], b' ' | b'\t') { pos += 1; }
+                    while pos < bytes.len() && matches!(bytes[pos], b' ' | b'\t') {
+                        pos += 1;
+                    }
                     let (val, consumed) = parse_attr_val(&s[pos..]);
                     href = Some(val);
                     pos += consumed;
@@ -450,7 +484,9 @@ fn parse_attr_val(s: &str) -> (String, usize) {
             (s[1..1 + end].to_owned(), end + 2)
         }
         _ => {
-            let end = s.find(|c: char| c.is_ascii_whitespace() || c == '>').unwrap_or(s.len());
+            let end = s
+                .find(|c: char| c.is_ascii_whitespace() || c == '>')
+                .unwrap_or(s.len());
             (s[..end].to_owned(), end)
         }
     }
@@ -527,83 +563,83 @@ pub(crate) fn decode_html_entities(s: &str) -> String {
 
 fn named_entity(name: &str) -> Option<&'static str> {
     Some(match name {
-        "amp"    => "&",
-        "lt"     => "<",
-        "gt"     => ">",
-        "quot"   => "\"",
-        "apos"   => "'",
-        "nbsp"   => " ",
-        "mdash"  => "—",
-        "ndash"  => "–",
-        "minus"  => "−",
+        "amp" => "&",
+        "lt" => "<",
+        "gt" => ">",
+        "quot" => "\"",
+        "apos" => "'",
+        "nbsp" => " ",
+        "mdash" => "—",
+        "ndash" => "–",
+        "minus" => "−",
         "hellip" => "…",
-        "laquo"  => "«",
-        "raquo"  => "»",
-        "ldquo"  => "\u{201C}",
-        "rdquo"  => "\u{201D}",
-        "lsquo"  => "\u{2018}",
-        "rsquo"  => "\u{2019}",
-        "sbquo"  => "\u{201A}",
-        "bdquo"  => "\u{201E}",
+        "laquo" => "«",
+        "raquo" => "»",
+        "ldquo" => "\u{201C}",
+        "rdquo" => "\u{201D}",
+        "lsquo" => "\u{2018}",
+        "rsquo" => "\u{2019}",
+        "sbquo" => "\u{201A}",
+        "bdquo" => "\u{201E}",
         "lsaquo" => "‹",
         "rsaquo" => "›",
-        "prime"  => "′",
-        "Prime"  => "″",
+        "prime" => "′",
+        "Prime" => "″",
         "thinsp" => "\u{2009}",
-        "ensp"   => "\u{2002}",
-        "emsp"   => "\u{2003}",
-        "zwj"    => "\u{200D}",
-        "zwnj"   => "\u{200C}",
-        "shy"    => "",
-        "copy"   => "©",
-        "reg"    => "®",
-        "trade"  => "™",
-        "euro"   => "€",
-        "pound"  => "£",
-        "yen"    => "¥",
-        "cent"   => "¢",
-        "deg"    => "°",
+        "ensp" => "\u{2002}",
+        "emsp" => "\u{2003}",
+        "zwj" => "\u{200D}",
+        "zwnj" => "\u{200C}",
+        "shy" => "",
+        "copy" => "©",
+        "reg" => "®",
+        "trade" => "™",
+        "euro" => "€",
+        "pound" => "£",
+        "yen" => "¥",
+        "cent" => "¢",
+        "deg" => "°",
         "plusmn" => "±",
-        "times"  => "×",
+        "times" => "×",
         "divide" => "÷",
         "middot" => "·",
-        "bull"   => "•",
-        "sdot"   => "⋅",
+        "bull" => "•",
+        "sdot" => "⋅",
         "frac12" => "½",
         "frac14" => "¼",
         "frac34" => "¾",
-        "sup1"   => "¹",
-        "sup2"   => "²",
-        "sup3"   => "³",
-        "infin"  => "∞",
-        "sum"    => "∑",
-        "prod"   => "∏",
-        "radic"  => "√",
-        "ne"     => "≠",
-        "le"     => "≤",
-        "ge"     => "≥",
-        "asymp"  => "≈",
-        "equiv"  => "≡",
+        "sup1" => "¹",
+        "sup2" => "²",
+        "sup3" => "³",
+        "infin" => "∞",
+        "sum" => "∑",
+        "prod" => "∏",
+        "radic" => "√",
+        "ne" => "≠",
+        "le" => "≤",
+        "ge" => "≥",
+        "asymp" => "≈",
+        "equiv" => "≡",
         "permil" => "‰",
-        "micro"  => "µ",
-        "para"   => "¶",
-        "sect"   => "§",
+        "micro" => "µ",
+        "para" => "¶",
+        "sect" => "§",
         "dagger" => "†",
         "Dagger" => "‡",
-        "clubs"  => "♣",
-        "diams"  => "♦",
+        "clubs" => "♣",
+        "diams" => "♦",
         "hearts" => "♥",
         "spades" => "♠",
-        "larr"   => "←",
-        "uarr"   => "↑",
-        "rarr"   => "→",
-        "darr"   => "↓",
-        "harr"   => "↔",
-        "lArr"   => "⇐",
-        "uArr"   => "⇑",
-        "rArr"   => "⇒",
-        "dArr"   => "⇓",
-        "hArr"   => "⇔",
+        "larr" => "←",
+        "uarr" => "↑",
+        "rarr" => "→",
+        "darr" => "↓",
+        "harr" => "↔",
+        "lArr" => "⇐",
+        "uArr" => "⇑",
+        "rArr" => "⇒",
+        "dArr" => "⇓",
+        "hArr" => "⇔",
         _ => return None,
     })
 }
@@ -617,7 +653,11 @@ mod tests {
     }
 
     fn collect_text(lines: &[Line<'_>]) -> String {
-        lines.iter().flat_map(|l| l.spans.iter()).map(|s| s.content.as_ref()).collect()
+        lines
+            .iter()
+            .flat_map(|l| l.spans.iter())
+            .map(|s| s.content.as_ref())
+            .collect()
     }
 
     #[test]
@@ -675,9 +715,15 @@ mod tests {
         let text = collect_text(&lines);
         // Link text + footnote number in body, URL in footnote section.
         assert!(text.contains("this page[1]"), "link text not found: {text}");
-        assert!(text.contains("https://example.com"), "url not in footnotes: {text}");
+        assert!(
+            text.contains("https://example.com"),
+            "url not in footnotes: {text}"
+        );
         // The URL should appear AFTER the separator, not inline.
-        assert!(!text.contains("this page https://"), "url leaked inline: {text}");
+        assert!(
+            !text.contains("this page https://"),
+            "url leaked inline: {text}"
+        );
     }
 
     #[test]
@@ -687,15 +733,25 @@ mod tests {
         assert!(text.contains("first[1]"), "first link: {text}");
         assert!(text.contains("second[1]"), "second reuses [1]: {text}");
         // Only one footnote entry for the same URL.
-        assert_eq!(text.matches("https://example.com").count(), 1, "should be one footnote: {text}");
+        assert_eq!(
+            text.matches("https://example.com").count(),
+            1,
+            "should be one footnote: {text}"
+        );
     }
 
     #[test]
     fn markdown_links_converted() {
         let md = "See [the Dracula theme](https://draculatheme.com/) for details.";
         let text = collect_text(&html_to_lines(md, s(), 0));
-        assert!(text.contains("the Dracula theme"), "link text missing: {text}");
-        assert!(text.contains("draculatheme.com"), "url in footnote missing: {text}");
+        assert!(
+            text.contains("the Dracula theme"),
+            "link text missing: {text}"
+        );
+        assert!(
+            text.contains("draculatheme.com"),
+            "url in footnote missing: {text}"
+        );
         // Should not show raw markdown syntax.
         assert!(!text.contains("](http"), "raw markdown leaked: {text}");
     }
@@ -704,7 +760,10 @@ mod tests {
     fn markdown_links_non_link_brackets_preserved() {
         let md = "This [not a link] stays literal.";
         let out = markdown_links_to_html(md);
-        assert!(out.contains("[not a link]"), "bracket content should be preserved: {out}");
+        assert!(
+            out.contains("[not a link]"),
+            "bracket content should be preserved: {out}"
+        );
         assert!(!out.contains("<a"), "should not be an anchor: {out}");
     }
 
@@ -714,10 +773,19 @@ mod tests {
         let text = collect_text(&lines);
         assert!(text.contains("https://example.com"), "url missing: {text}");
         // The URL must be isolated in its own span (not merged with surrounding text).
-        let url_span = lines.iter().flat_map(|l| l.spans.iter())
+        let url_span = lines
+            .iter()
+            .flat_map(|l| l.spans.iter())
             .find(|sp| sp.content.as_ref() == "https://example.com");
-        assert!(url_span.is_some(), "url not in a dedicated span; spans: {:?}",
-            lines.iter().flat_map(|l| l.spans.iter()).map(|s| s.content.as_ref()).collect::<Vec<_>>());
+        assert!(
+            url_span.is_some(),
+            "url not in a dedicated span; spans: {:?}",
+            lines
+                .iter()
+                .flat_map(|l| l.spans.iter())
+                .map(|s| s.content.as_ref())
+                .collect::<Vec<_>>()
+        );
     }
 
     // ── decode_html_entities() ────────────────────────────────────────────────

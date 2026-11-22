@@ -2,17 +2,20 @@ use std::collections::HashSet;
 use std::sync::mpsc;
 
 use chrono::Utc;
+use crossterm::event::Event as CrosstermEvent;
 use crossterm::event::KeyCode;
 use ratatui::text::Line;
 use tui_input::backend::crossterm::to_input_request;
 use tui_input::Input as TuiInput;
-use crossterm::event::Event as CrosstermEvent;
 
 use crate::config::{matches_key, Config};
 use crate::error::Result;
 use crate::feed::fetcher::{probe_feed, spawn_fetch, FetchMessage};
 use crate::feed::{Article, Feed};
-use crate::feeds_config::{add_feed_to_file, remove_feed_from_file, rename_feed_in_file, FeedConfig, SidebarItem, SidebarLayout};
+use crate::feeds_config::{
+    add_feed_to_file, remove_feed_from_file, rename_feed_in_file, FeedConfig, SidebarItem,
+    SidebarLayout,
+};
 use crate::html::{html_to_lines, ArticleStyles};
 use crate::state::{Cache, InputMode, UiState};
 use crate::theme::Theme;
@@ -150,8 +153,10 @@ impl App {
                         Ok(feed_title) => {
                             let category = self.current_feed_category();
                             self.ui.input = TuiInput::new(category);
-                            self.ui.input_mode =
-                                InputMode::AddFeedCategory { pending_url: url, feed_title };
+                            self.ui.input_mode = InputMode::AddFeedCategory {
+                                pending_url: url,
+                                feed_title,
+                            };
                             self.ui.status_message = None;
                             self.ui.status_is_error = false;
                         }
@@ -180,15 +185,18 @@ impl App {
                     self.ui.status_message = Some(format!("Fetching {}…", url));
                     self.ui.status_is_error = false;
                 }
-                FetchMessage::Complete { url, feed_title, articles } => {
+                FetchMessage::Complete {
+                    url,
+                    feed_title,
+                    articles,
+                } => {
                     // Clear any previous error for this feed on success.
                     self.feed_errors.remove(&url);
                     self.apply_fetch_result(&url, feed_title, articles);
                 }
                 FetchMessage::Error { url, reason } => {
                     self.feed_errors.insert(url.clone());
-                    self.ui.status_message =
-                        Some(format!("Error fetching {}: {}", url, reason));
+                    self.ui.status_message = Some(format!("Error fetching {}: {}", url, reason));
                     self.ui.status_is_error = true;
                 }
                 FetchMessage::Done => {
@@ -307,7 +315,10 @@ impl App {
             let feed_url = feed.url.clone();
             let feed_name = feed.name.clone();
             self.ui.input = TuiInput::default();
-            self.ui.input_mode = InputMode::DeleteConfirm { feed_url, feed_name };
+            self.ui.input_mode = InputMode::DeleteConfirm {
+                feed_url,
+                feed_name,
+            };
             self.ui.status_message = None;
             self.ui.status_is_error = false;
         }
@@ -357,7 +368,10 @@ impl App {
                 // Validation is in progress; ignore spurious Enter presses.
             }
 
-            InputMode::AddFeedCategory { pending_url, feed_title } => {
+            InputMode::AddFeedCategory {
+                pending_url,
+                feed_title,
+            } => {
                 let category = self.ui.input.value().trim().to_owned();
                 self.ui.input_mode = InputMode::Idle;
                 self.ui.input = TuiInput::default();
@@ -368,13 +382,11 @@ impl App {
                         match add_feed_to_file(&path, &pending_url, title_ref, &category) {
                             Ok(()) => {
                                 self.reload_config();
-                                self.ui.status_message =
-                                    Some(format!("Feed added: {pending_url}"));
+                                self.ui.status_message = Some(format!("Feed added: {pending_url}"));
                                 self.ui.status_is_error = false;
                             }
                             Err(e) => {
-                                self.ui.status_message =
-                                    Some(format!("Failed to save feed: {e}"));
+                                self.ui.status_message = Some(format!("Failed to save feed: {e}"));
                                 self.ui.status_is_error = true;
                             }
                         }
@@ -398,8 +410,7 @@ impl App {
                             self.ui.status_is_error = false;
                         }
                         Err(e) => {
-                            self.ui.status_message =
-                                Some(format!("Failed to delete feed: {e}"));
+                            self.ui.status_message = Some(format!("Failed to delete feed: {e}"));
                             self.ui.status_is_error = true;
                         }
                     },
@@ -423,7 +434,11 @@ impl App {
                     };
                 }
                 // Persist to feeds.toml.
-                let name_opt: Option<&str> = if new_name.is_empty() { None } else { Some(&new_name) };
+                let name_opt: Option<&str> = if new_name.is_empty() {
+                    None
+                } else {
+                    Some(&new_name)
+                };
                 match self.config.feeds_file_path() {
                     Ok(path) => {
                         if let Err(e) = rename_feed_in_file(&path, &url, name_opt) {
@@ -466,7 +481,6 @@ impl App {
         String::new()
     }
 
-
     /// Reload `config.toml` and `feeds.toml` without restarting.
     ///
     /// - Re-reads both files from disk (falling back to defaults on error).
@@ -503,8 +517,7 @@ impl App {
         };
 
         // Rebuild sidebar and feed list.
-        let (feed_configs, new_sidebar) =
-            feeds_file.into_layout(&new_config.uncategorized_label);
+        let (feed_configs, new_sidebar) = feeds_file.into_layout(&new_config.uncategorized_label);
 
         // Remember which feed URL was selected so we can restore selection.
         let selected_url = self
@@ -693,11 +706,11 @@ impl App {
         let styles = {
             let t = &self.theme;
             ArticleStyles {
-                h1:    t.style("article.h1"),
-                h2:    t.style("article.h2"),
-                h3:    t.style("article.h3"),
-                code:  t.style("article.code"),
-                link:  t.style("article.link"),
+                h1: t.style("article.h1"),
+                h2: t.style("article.h2"),
+                h3: t.style("article.h3"),
+                code: t.style("article.code"),
+                link: t.style("article.link"),
                 quote: t.style("article.quote"),
             }
         };
@@ -706,17 +719,18 @@ impl App {
         // Direct field access (self.feeds.get()) gives the compiler split-borrow
         // visibility so it can prove content/description don't alias article_lines
         // or description_lines — avoiding clone() of potentially large HTML strings.
-        let feed_idx    = self.ui.selected_feed;
+        let feed_idx = self.ui.selected_feed;
         let article_idx = self.ui.selected_article;
-        let (content, description): (&str, &str) = self.feeds
+        let (content, description): (&str, &str) = self
+            .feeds
             .get(feed_idx)
             .and_then(|f| f.articles.get(article_idx))
             .map(|a| (a.content.as_str(), a.description.as_deref().unwrap_or("")))
             .unwrap_or(("", ""));
 
-        self.article_lines      = html_to_lines(content,     styles, width);
-        self.description_lines  = html_to_lines(description, styles, width);
-        self.rendered_at_width  = width;
+        self.article_lines = html_to_lines(content, styles, width);
+        self.description_lines = html_to_lines(description, styles, width);
+        self.rendered_at_width = width;
     }
 
     /// Re-render the article if the panel width changed since the last render.
@@ -729,7 +743,12 @@ impl App {
     }
 
     /// Merge freshly fetched articles into the correct feed slot.
-    fn apply_fetch_result(&mut self, url: &str, feed_title: Option<String>, articles: Vec<Article>) {
+    fn apply_fetch_result(
+        &mut self,
+        url: &str,
+        feed_title: Option<String>,
+        articles: Vec<Article>,
+    ) {
         if let Some(feed) = self.feeds.iter_mut().find(|f| f.url == url) {
             feed.articles = articles;
             feed.last_fetched = Some(Utc::now());

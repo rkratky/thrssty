@@ -48,7 +48,10 @@ fn default_config_refresh_on_start_is_bool() {
 fn cascade_with_no_sources_returns_defaults() {
     let cfg = Config::load_cascade(&[]);
     assert_eq!(cfg.keys.quit, Config::default().keys.quit);
-    assert_eq!(cfg.layout.sidebar_width, Config::default().layout.sidebar_width);
+    assert_eq!(
+        cfg.layout.sidebar_width,
+        Config::default().layout.sidebar_width
+    );
 }
 
 #[test]
@@ -93,7 +96,7 @@ fn cascade_lower_priority_key_not_overridden_by_higher() {
 
     let cfg = Config::load_cascade(&[Some(low.path()), Some(high.path())]);
     assert_eq!(cfg.keys.feed_down, "G"); // preserved from low
-    assert_eq!(cfg.keys.quit, "Q");      // taken from high
+    assert_eq!(cfg.keys.quit, "Q"); // taken from high
 }
 
 #[test]
@@ -134,29 +137,29 @@ fn does_not_match_wrong_char() {
 
 #[test]
 fn matches_named_arrow_keys() {
-    assert!(matches_key(&key(KeyCode::Up),    "Up"));
-    assert!(matches_key(&key(KeyCode::Down),  "Down"));
-    assert!(matches_key(&key(KeyCode::Left),  "Left"));
+    assert!(matches_key(&key(KeyCode::Up), "Up"));
+    assert!(matches_key(&key(KeyCode::Down), "Down"));
+    assert!(matches_key(&key(KeyCode::Left), "Left"));
     assert!(matches_key(&key(KeyCode::Right), "Right"));
 }
 
 #[test]
 fn matches_named_navigation_keys() {
-    assert!(matches_key(&key(KeyCode::Home),     "Home"));
-    assert!(matches_key(&key(KeyCode::End),      "End"));
-    assert!(matches_key(&key(KeyCode::PageUp),   "PageUp"));
+    assert!(matches_key(&key(KeyCode::Home), "Home"));
+    assert!(matches_key(&key(KeyCode::End), "End"));
+    assert!(matches_key(&key(KeyCode::PageUp), "PageUp"));
     assert!(matches_key(&key(KeyCode::PageDown), "PageDown"));
 }
 
 #[test]
 fn matches_named_editing_keys() {
-    assert!(matches_key(&key(KeyCode::Enter),     "Enter"));
-    assert!(matches_key(&key(KeyCode::Esc),       "Esc"));
-    assert!(matches_key(&key(KeyCode::Tab),       "Tab"));
-    assert!(matches_key(&key(KeyCode::BackTab),   "BackTab"));
+    assert!(matches_key(&key(KeyCode::Enter), "Enter"));
+    assert!(matches_key(&key(KeyCode::Esc), "Esc"));
+    assert!(matches_key(&key(KeyCode::Tab), "Tab"));
+    assert!(matches_key(&key(KeyCode::BackTab), "BackTab"));
     assert!(matches_key(&key(KeyCode::Backspace), "Backspace"));
-    assert!(matches_key(&key(KeyCode::Delete),    "Delete"));
-    assert!(matches_key(&key(KeyCode::Insert),    "Insert"));
+    assert!(matches_key(&key(KeyCode::Delete), "Delete"));
+    assert!(matches_key(&key(KeyCode::Insert), "Insert"));
 }
 
 #[test]
@@ -167,14 +170,14 @@ fn matches_space_key_as_space_char_and_alias() {
 
 #[test]
 fn matches_function_keys() {
-    assert!(matches_key(&key(KeyCode::F(1)),  "F1"));
-    assert!(matches_key(&key(KeyCode::F(5)),  "F5"));
+    assert!(matches_key(&key(KeyCode::F(1)), "F1"));
+    assert!(matches_key(&key(KeyCode::F(5)), "F5"));
     assert!(matches_key(&key(KeyCode::F(12)), "F12"));
 }
 
 #[test]
 fn does_not_match_wrong_named_key() {
-    assert!(!matches_key(&key(KeyCode::Up),   "Down"));
+    assert!(!matches_key(&key(KeyCode::Up), "Down"));
     assert!(!matches_key(&key(KeyCode::Home), "End"));
     assert!(!matches_key(&key(KeyCode::F(1)), "F2"));
 }

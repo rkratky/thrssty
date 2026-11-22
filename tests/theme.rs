@@ -156,11 +156,7 @@ fn palette_named_colour_parsed() {
 #[test]
 fn inline_hex_colour_without_palette_parsed() {
     let f = NamedTempFile::new().unwrap();
-    std::fs::write(
-        f.path(),
-        r##""ui.text" = { fg = "#ff00ff" }"##,
-    )
-    .unwrap();
+    std::fs::write(f.path(), r##""ui.text" = { fg = "#ff00ff" }"##).unwrap();
 
     let theme = Theme::load(f.path().to_str().unwrap(), None);
     let s = theme.style("ui.text");
@@ -208,7 +204,10 @@ fn hex_uppercase_is_parsed() {
     let f = NamedTempFile::new().unwrap();
     std::fs::write(f.path(), r##""ui.text" = { fg = "#AABBCC" }"##).unwrap();
     let theme = Theme::load(f.path().to_str().unwrap(), None);
-    assert_eq!(theme.style("ui.text").fg, Some(Color::Rgb(0xaa, 0xbb, 0xcc)));
+    assert_eq!(
+        theme.style("ui.text").fg,
+        Some(Color::Rgb(0xaa, 0xbb, 0xcc))
+    );
 }
 
 #[test]
@@ -216,7 +215,10 @@ fn hex_mixed_case_is_parsed() {
     let f = NamedTempFile::new().unwrap();
     std::fs::write(f.path(), r##""ui.text" = { fg = "#AaBbCc" }"##).unwrap();
     let theme = Theme::load(f.path().to_str().unwrap(), None);
-    assert_eq!(theme.style("ui.text").fg, Some(Color::Rgb(0xaa, 0xbb, 0xcc)));
+    assert_eq!(
+        theme.style("ui.text").fg,
+        Some(Color::Rgb(0xaa, 0xbb, 0xcc))
+    );
 }
 
 // ── Modifier parsing ──────────────────────────────────────────────────────────
@@ -249,7 +251,10 @@ fn modifier_underline_both_spellings() {
         .unwrap();
         let theme = Theme::load(f.path().to_str().unwrap(), None);
         assert!(
-            theme.style("ui.text").add_modifier.contains(Modifier::UNDERLINED),
+            theme
+                .style("ui.text")
+                .add_modifier
+                .contains(Modifier::UNDERLINED),
             "spelling '{spelling}' should produce UNDERLINED modifier"
         );
     }
@@ -258,10 +263,14 @@ fn modifier_underline_both_spellings() {
 #[test]
 fn multiple_modifiers_stacked() {
     let f = NamedTempFile::new().unwrap();
-    std::fs::write(f.path(), r#""ui.text" = { modifiers = ["bold", "italic"] }"#).unwrap();
+    std::fs::write(
+        f.path(),
+        r#""ui.text" = { modifiers = ["bold", "italic"] }"#,
+    )
+    .unwrap();
     let theme = Theme::load(f.path().to_str().unwrap(), None);
     let m = theme.style("ui.text").add_modifier;
-    assert!(m.contains(Modifier::BOLD),   "bold should be set");
+    assert!(m.contains(Modifier::BOLD), "bold should be set");
     assert!(m.contains(Modifier::ITALIC), "italic should be set");
 }
 
@@ -269,11 +278,19 @@ fn multiple_modifiers_stacked() {
 fn unknown_modifier_silently_ignored() {
     let f = NamedTempFile::new().unwrap();
     // "fakefmt" is not a recognized modifier; should not panic or affect the style.
-    std::fs::write(f.path(), r#""ui.text" = { fg = "red", modifiers = ["fakefmt"] }"#).unwrap();
+    std::fs::write(
+        f.path(),
+        r#""ui.text" = { fg = "red", modifiers = ["fakefmt"] }"#,
+    )
+    .unwrap();
     let theme = Theme::load(f.path().to_str().unwrap(), None);
     let s = theme.style("ui.text");
     assert_eq!(s.fg, Some(Color::Red));
-    assert_eq!(s.add_modifier, Modifier::empty(), "unknown modifier should add nothing");
+    assert_eq!(
+        s.add_modifier,
+        Modifier::empty(),
+        "unknown modifier should add nothing"
+    );
 }
 
 // ── Palette lookup takes precedence ───────────────────────────────────────────

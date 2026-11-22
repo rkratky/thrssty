@@ -277,8 +277,12 @@ impl Config {
         let mut merged = toml::Value::Table(Default::default());
         for &maybe_path in sources {
             let Some(path) = maybe_path else { continue };
-            let Ok(content) = std::fs::read_to_string(path) else { continue };
-            let Ok(val) = toml::from_str::<toml::Value>(&content) else { continue };
+            let Ok(content) = std::fs::read_to_string(path) else {
+                continue;
+            };
+            let Ok(val) = toml::from_str::<toml::Value>(&content) else {
+                continue;
+            };
             merge_toml(&mut merged, val);
         }
         merged.try_into().unwrap_or_default()
@@ -299,8 +303,8 @@ impl Config {
         fs::create_dir_all(&themes_dir)?;
 
         let files: &[(&str, &str)] = &[
-            ("config.toml",         include_str!("default_config.toml")),
-            ("feeds.toml",          include_str!("example_feeds.toml")),
+            ("config.toml", include_str!("default_config.toml")),
+            ("feeds.toml", include_str!("example_feeds.toml")),
             ("themes/default.toml", include_str!("default_theme.toml")),
         ];
 
@@ -328,18 +332,21 @@ impl Config {
         self.feeds_file_path_relative_to(None)
     }
 
-    /// Like [`feeds_file_path`] but with an explicit `base_dir`.
+    /// Like [`Self::feeds_file_path`] but with an explicit `base_dir`.
     pub fn feeds_file_path_relative_to(&self, base_dir: Option<&Path>) -> Result<PathBuf> {
         let fallback = Self::config_path()?;
-        let base = base_dir.unwrap_or_else(|| {
-            fallback.parent().unwrap_or(std::path::Path::new("."))
-        });
+        let base =
+            base_dir.unwrap_or_else(|| fallback.parent().unwrap_or(std::path::Path::new(".")));
 
         let path = match &self.feeds_file {
             None => base.join("feeds.toml"),
             Some(f) => {
                 let p = PathBuf::from(f);
-                if p.is_absolute() { p } else { base.join(p) }
+                if p.is_absolute() {
+                    p
+                } else {
+                    base.join(p)
+                }
             }
         };
         Ok(path)
@@ -363,8 +370,6 @@ fn merge_toml(dst: &mut toml::Value, src: toml::Value) {
         (dst, src) => *dst = src,
     }
 }
-
-
 
 /// Returns `true` if `event` matches the key described by `key_str`.
 ///

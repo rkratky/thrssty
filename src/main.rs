@@ -44,11 +44,7 @@ fn run() -> Result<()> {
         .then(|| Path::new("config.toml").to_path_buf());
     let cli_config = args.config.as_deref().map(Path::new);
 
-    let config = Config::load_cascade(&[
-        cwd_config.as_deref(),
-        xdg_config.as_deref(),
-        cli_config,
-    ]);
+    let config = Config::load_cascade(&[cwd_config.as_deref(), xdg_config.as_deref(), cli_config]);
 
     // --theme overrides the config's theme field.
     // --refresh overrides the config's refresh_on_start field.
@@ -141,4 +137,3 @@ fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Re
     terminal.show_cursor()?;
     Ok(())
 }
-

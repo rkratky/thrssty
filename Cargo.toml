@@ -2,6 +2,7 @@
 name = "thrssty"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.96.1"
 description = "TUI RSS news reader in Rust"
 repository = "https://github.com/rkratky/thrssty"
 license = "MIT OR Apache-2.0"
@@ -28,8 +29,8 @@ assets = [
     # manpage (gzip'd by cargo-deb automatically)
     ["man/thrssty.1", "usr/share/man/man1/thrssty.1", "644"],
     # example config (docs, not enforced as a conf-file)
-    ["config.toml", "usr/share/doc/thrssty/config.toml.example", "644"],
-    ["feeds.toml", "usr/share/doc/thrssty/feeds.toml.example", "644"],
+    ["src/default_config.toml", "usr/share/doc/thrssty/config.toml.example", "644"],
+    ["src/example_feeds.toml", "usr/share/doc/thrssty/feeds.toml.example", "644"],
     ["README.md", "usr/share/doc/thrssty/README.md", "644"],
     ["CHANGELOG.md", "usr/share/doc/thrssty/changelog", "644"],
 ]
@@ -41,18 +42,18 @@ tui-input = "0.15"
 crossterm = "0.29"
 
 # HTML rendering for article body
-html2text = "0.16"
+html2text = "0.17"
 
 # RSS/Atom feed parsing
 feed-rs = "2"
 
 # HTTP client (sync, minimal — fetches run on a background thread)
-ureq = "2"
+ureq = "3"
 
 # Serialization: config (TOML) and cache (JSON)
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.8"
+toml = "1"
 
 # Error handling
 thiserror = "2"
@@ -61,7 +62,7 @@ thiserror = "2"
 chrono = { version = "0.4", features = ["serde"] }
 
 # Platform config/data directory resolution
-dirs = "5"
+dirs = "7"
 
 # Open article URLs in the system browser
 open = "5"

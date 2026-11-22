@@ -46,7 +46,7 @@ impl Theme {
     pub fn load_builtin() -> Self {
         match terminal::detect() {
             terminal::Background::Light => Self::load_builtin_light(),
-            terminal::Background::Dark  => Self::load_builtin_dark(),
+            terminal::Background::Dark => Self::load_builtin_dark(),
         }
     }
 
@@ -64,15 +64,14 @@ impl Theme {
     pub fn load(theme_str: &str, user_themes_dir: Option<&Path>) -> Self {
         match theme_str {
             "auto" | "default" => return Self::load_builtin(),
-            "default_dark"     => return Self::load_builtin_dark(),
-            "default_light"    => return Self::load_builtin_light(),
+            "default_dark" => return Self::load_builtin_dark(),
+            "default_light" => return Self::load_builtin_light(),
             _ => {}
         }
 
         // Detect explicit path: absolute, contains a separator, or .toml suffix.
-        let is_path = theme_str.contains('/')
-            || theme_str.contains('\\')
-            || theme_str.ends_with(".toml");
+        let is_path =
+            theme_str.contains('/') || theme_str.contains('\\') || theme_str.ends_with(".toml");
 
         if is_path {
             let path = PathBuf::from(theme_str);
@@ -107,7 +106,9 @@ impl Theme {
     // ── Internal ────────────────────────────────────────────────────────────
 
     fn empty() -> Self {
-        Self { styles: HashMap::new() }
+        Self {
+            styles: HashMap::new(),
+        }
     }
 
     fn load_from_file_recursive(path: &Path, depth: usize) -> Result<Self> {
@@ -119,11 +120,10 @@ impl Theme {
         // Determine the directory so we can resolve the parent theme.
         let dir = path.parent().map(|p| p.to_owned());
 
-        Self::parse_with_base(&content, dir.as_deref(), depth)
-            .map_err(|e| AppError::ThemeParse {
-                file: path.display().to_string(),
-                reason: e.to_string(),
-            })
+        Self::parse_with_base(&content, dir.as_deref(), depth).map_err(|e| AppError::ThemeParse {
+            file: path.display().to_string(),
+            reason: e.to_string(),
+        })
     }
 
     /// Parse a TOML string in Helix theme format into a Theme.
@@ -140,19 +140,15 @@ impl Theme {
             .ok_or("Expected a TOML table at the top level")?;
 
         // Resolve `inherits` → load the parent theme first as our base.
-        let mut styles: HashMap<String, Style> =
-            if depth < MAX_INHERIT_DEPTH {
-                if let Some(parent_name) = table
-                    .get("inherits")
-                    .and_then(|v| v.as_str())
-                {
-                    resolve_parent(parent_name, search_dir, depth + 1)
-                } else {
-                    HashMap::new()
-                }
+        let mut styles: HashMap<String, Style> = if depth < MAX_INHERIT_DEPTH {
+            if let Some(parent_name) = table.get("inherits").and_then(|v| v.as_str()) {
+                resolve_parent(parent_name, search_dir, depth + 1)
             } else {
                 HashMap::new()
-            };
+            }
+        } else {
+            HashMap::new()
+        };
 
         // Extract palette.
         let palette: HashMap<String, String> = table
@@ -182,11 +178,7 @@ impl Theme {
 
 /// Try to load a parent theme by name from `search_dir`.
 /// Returns an empty style map on any failure (graceful degradation).
-fn resolve_parent(
-    name: &str,
-    search_dir: Option<&Path>,
-    depth: usize,
-) -> HashMap<String, Style> {
+fn resolve_parent(name: &str, search_dir: Option<&Path>, depth: usize) -> HashMap<String, Style> {
     if let Some(dir) = search_dir {
         let path = dir.join(format!("{}.toml", name));
         if let Ok(theme) = Theme::load_from_file_recursive(&path, depth) {
@@ -202,33 +194,36 @@ fn apply_helix_fallbacks(styles: &mut HashMap<String, Style>) {
     // (thrssty scope, &[helix scopes to try in priority order])
     let mappings: &[(&str, &[&str])] = &[
         // Article inline styles
-        ("article.link",      &["markup.link.url", "markup.link"]),
-        ("article.h1",        &["markup.heading.1", "markup.heading"]),
-        ("article.h2",        &["markup.heading.2", "markup.heading"]),
-        ("article.h3",        &["markup.heading.3", "markup.heading"]),
-        ("article.code",      &["markup.raw.inline", "markup.raw.block", "markup.raw"]),
-        ("article.quote",     &["markup.quote"]),
-        ("article.bold",      &["markup.bold"]),
-        ("article.italic",    &["markup.italic"]),
+        ("article.link", &["markup.link.url", "markup.link"]),
+        ("article.h1", &["markup.heading.1", "markup.heading"]),
+        ("article.h2", &["markup.heading.2", "markup.heading"]),
+        ("article.h3", &["markup.heading.3", "markup.heading"]),
+        (
+            "article.code",
+            &["markup.raw.inline", "markup.raw.block", "markup.raw"],
+        ),
+        ("article.quote", &["markup.quote"]),
+        ("article.bold", &["markup.bold"]),
+        ("article.italic", &["markup.italic"]),
         // Article list rows
-        ("article.unread",    &["ui.text"]),
-        ("article.read",      &["ui.text.inactive", "comment"]),
-        ("article.selected",  &["ui.selection"]),
-        ("article.date",      &["constant.numeric", "constant"]),
-        ("article.author",    &["variable.other.member", "function"]),
-        ("article.category",  &["tag", "attribute", "label"]),
-        ("article.description",&["comment", "ui.text.inactive"]),
+        ("article.unread", &["ui.text"]),
+        ("article.read", &["ui.text.inactive", "comment"]),
+        ("article.selected", &["ui.selection"]),
+        ("article.date", &["constant.numeric", "constant"]),
+        ("article.author", &["variable.other.member", "function"]),
+        ("article.category", &["tag", "attribute", "label"]),
+        ("article.description", &["comment", "ui.text.inactive"]),
         // Feed sidebar
-        ("feed.unread",       &["ui.text"]),
-        ("feed.read",         &["ui.text.inactive", "comment"]),
-        ("feed.selected",     &["ui.selection"]),
-        ("feed.error",        &["error", "diagnostic.error"]),
+        ("feed.unread", &["ui.text"]),
+        ("feed.read", &["ui.text.inactive", "comment"]),
+        ("feed.selected", &["ui.selection"]),
+        ("feed.error", &["error", "diagnostic.error"]),
         // Category rows
-        ("category.unread",   &["ui.text"]),
-        ("category.read",     &["ui.text.inactive", "comment"]),
+        ("category.unread", &["ui.text"]),
+        ("category.read", &["ui.text.inactive", "comment"]),
         // UI chrome
-        ("ui.border",         &["ui.window", "ui.popup"]),
-        ("ui.statusline.error",&["error", "diagnostic.error"]),
+        ("ui.border", &["ui.window", "ui.popup"]),
+        ("ui.statusline.error", &["error", "diagnostic.error"]),
     ];
 
     for &(thrssty, fallbacks) in mappings {

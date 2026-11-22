@@ -3,7 +3,7 @@
 //! the public API from outside the crate and covering cross-cutting scenarios.
 
 use ratatui::style::{Color, Modifier, Style};
-use thrssty::html::{ArticleStyles, html_to_lines};
+use thrssty::html::{html_to_lines, ArticleStyles};
 
 fn plain_styles() -> ArticleStyles {
     ArticleStyles::default()
@@ -11,11 +11,15 @@ fn plain_styles() -> ArticleStyles {
 
 fn styled() -> ArticleStyles {
     ArticleStyles {
-        h1:    Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
-        h2:    Style::default().fg(Color::Green),
-        h3:    Style::default().fg(Color::Cyan),
-        code:  Style::default().fg(Color::Magenta),
-        link:  Style::default().fg(Color::Blue).add_modifier(Modifier::UNDERLINED),
+        h1: Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD),
+        h2: Style::default().fg(Color::Green),
+        h3: Style::default().fg(Color::Cyan),
+        code: Style::default().fg(Color::Magenta),
+        link: Style::default()
+            .fg(Color::Blue)
+            .add_modifier(Modifier::UNDERLINED),
         quote: Style::default().fg(Color::DarkGray),
     }
 }
@@ -186,7 +190,10 @@ fn hex_numeric_entities_are_decoded() {
     // was never decoded.
     let lines = render("<p>&#x74;&#x65;&#x73;&#x74;</p>");
     let joined = lines.join(" ");
-    assert!(joined.contains("test"), "hex entities not decoded: {joined}");
+    assert!(
+        joined.contains("test"),
+        "hex entities not decoded: {joined}"
+    );
 }
 
 #[test]
@@ -194,7 +201,10 @@ fn uppercase_hex_numeric_entities_are_decoded() {
     // Same as above but with uppercase X.
     let lines = render("<p>&#X74;&#X65;&#X73;&#X74;</p>");
     let joined = lines.join(" ");
-    assert!(joined.contains("test"), "uppercase hex entities not decoded: {joined}");
+    assert!(
+        joined.contains("test"),
+        "uppercase hex entities not decoded: {joined}"
+    );
 }
 
 // ── Markdown in plain-text feeds ─────────────────────────────────────────────
@@ -232,8 +242,14 @@ fn local_anchor_link_content_preserved_without_footnote() {
     let html = r##"<a href="#top">Back to top</a>"##;
     let lines = render(html);
     let joined = lines.join(" ");
-    assert!(joined.contains("Back to top"), "anchor text should appear: {joined}");
-    assert!(!joined.contains('['), "local anchor should not produce a footnote: {joined}");
+    assert!(
+        joined.contains("Back to top"),
+        "anchor text should appear: {joined}"
+    );
+    assert!(
+        !joined.contains('['),
+        "local anchor should not produce a footnote: {joined}"
+    );
 }
 
 #[test]
@@ -242,7 +258,10 @@ fn empty_link_content_produces_no_footnote() {
     let html = r#"<a href="https://example.com">   </a>"#;
     let lines = render(html);
     let joined = lines.join(" ");
-    assert!(!joined.contains("[1]"), "whitespace-only link content should not produce footnote: {joined}");
+    assert!(
+        !joined.contains("[1]"),
+        "whitespace-only link content should not produce footnote: {joined}"
+    );
 }
 
 #[test]
@@ -252,7 +271,10 @@ fn duplicate_urls_share_one_footnote_number() {
     let lines = render(html);
     let joined = lines.join(" ");
     assert!(joined.contains("[1]"), "expected footnote [1]: {joined}");
-    assert!(!joined.contains("[2]"), "duplicate URL should reuse [1], not create [2]: {joined}");
+    assert!(
+        !joined.contains("[2]"),
+        "duplicate URL should reuse [1], not create [2]: {joined}"
+    );
 }
 
 #[test]
@@ -279,5 +301,8 @@ fn link_footnotes_appear_after_paragraph() {
     let html = r#"<p>Read <a href="https://example.com/article">the article</a> now.</p>"#;
     let lines = render(html);
     let joined = lines.join("\n");
-    assert!(joined.contains("example.com/article"), "URL should appear in footnotes: {joined}");
+    assert!(
+        joined.contains("example.com/article"),
+        "URL should appear in footnotes: {joined}"
+    );
 }
